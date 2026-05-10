@@ -5,7 +5,7 @@ module master_fsm (
     input logic rst_n,
 
     input logic [7:0] key,
-    input game_status engine,
+    input game_if engine,
 
     input logic UART_ready,
 
@@ -55,74 +55,114 @@ always_comb begin
 
     case(state)
         INIT: begin
-            UART_select_nxt = '0;
-            UART_data_nxt = ENTER; //placeholder
-            state_nxt = IDLE;
+            timer_enable_nxt    = '0;
+            UART_data_nxt       = ENTER;
+            UART_select_nxt     = UART_FSM;
+            song_select_nxt     = '0;
+            song_start_nxt      = '0;
+            song_stop_nxt       = '0;
         end
         IDLE: begin
-            UART_data_nxt = 8'h00;
-            state_nxt = IDLE;
-            if(key == ENTER) begin
-                state_nxt = SONG_CHOOSING;
-                UART_data_nxt = ENTER;
-            end
+            timer_enable_nxt    = '0;
+            UART_data_nxt       = '0;
+            UART_select_nxt     = UART_FSM;
+            song_select_nxt     = '0;
+            song_start_nxt      = '0;
+            song_stop_nxt       = '0;
         end
         SONG_CHOOSING: begin
-            UART_data_nxt = 8'h00;
-            state_nxt = IDLE;
-            if(key == 8'h01) begin //placeholder
+            timer_enable_nxt    = '0;
+            UART_select_nxt     = UART_FSM;
+            song_start_nxt      = '0;
+            song_stop_nxt       = '0;
+
+            if(key == ARR_RIGHT) begin 
                 song_select_nxt = song_select + 1;
-                UART_data_nxt = {(song_select + 1), 4'hf}; //placeholder
-            end else if(key == 8'h02) begin //placeholder
+                UART_data_nxt = {(song_select + 1), CHOOSE}; 
+            end else if(key == ARR_LEFT) begin 
                 song_select_nxt = song_select - 1;
-                UART_data_nxt = {(song_select - 1), 4'hf}; //placeholder
-            end else if(key == ENTER) begin //placeholder
-                state_nxt = SONG_VERIF;
-            end else if(key == ESC) begin
-                state_nxt = IDLE;
-                UART_data_nxt = ESC;
+                UART_data_nxt = {(song_select - 1), CHOOSE};
+            end else begin
+                song_select_nxt = song_select;
+                UART_data_nxt = UART_data;
             end
+
         end
         SONG_VERIF: begin
-            UART_data_nxt = {(song_select - 1), 4'hA};
+            timer_enable_nxt    = '0;
+            UART_data_nxt       = {song_select, CONFIRM};
+            song_select_nxt     = song_select;
+            song_stop_nxt       = '0;
+            
             if(UART_ready == '1) begin
-                state_nxt = SONG_PLAYING;
                 song_start_nxt = '1;
-                UART_select_nxt = '1;
+                UART_select_nxt = UART_GAME;
             end else begin
-                state_nxt = SONG_VERIF;
                 song_start_nxt = '0;
-                UART_select_nxt = '0;
+                UART_select_nxt = UART_FSM;
             end
         end
+
         SONG_PLAYING: begin
-            UART_data_nxt = 8'h00;
-            timer_enable_nxt = '1;
-            song_start_nxt = '0;
             if ((key == ESC) || (engine.status == STOP)) begin
-                timer_enable_nxt = '0;
-                UART_select_nxt = '0;
-                song_stop_nxt = '1;
-                song_select_nxt = '0;
-                state_nxt = IDLE;
+                timer_enable_nxt    = '0;
+                UART_data_nxt       = '0;
+                UART_select_nxt     = UART_FSM;
+                song_select_nxt     = '0;
+                song_start_nxt      = '0;
+                song_stop_nxt       = '1;
             end else if(engine.status == END_GAME) begin
-                timer_enable_nxt = '0;
-                UART_select_nxt = '0;
-                song_select_nxt = '0;
-                song_select_nxt = '0;
-                state_nxt = END_SCREEN;
+                timer_enable_nxt    = '0;
+                UART_data_nxt       = '0;
+                UART_select_nxt     = UART_FSM;
+                song_select_nxt     = '0;
+                song_start_nxt      = '0;
+                song_stop_nxt       = '1; //nie wiem, czy to potrzebne
             end else begin
-                UART_select_nxt = '1;
-                song_stop_nxt = '0;
-                state_nxt = SONG_PLAYING;
+                timer_enable_nxt    = '1;
+                UART_data_nxt       = '0;
+                UART_select_nxt     = UART_GAME;
+                song_select_nxt     = song_select;
+                song_start_nxt      = '0;
+                song_stop_nxt       = '0;
             end
         end
         END_SCREEN: begin
-            UART_data_nxt = 8'h00;
-            if (key == ESC) begin
-                state_nxt = SONG_CHOOSING;
-                UART_data_nxt = ESC;
-            end
+            timer_enable_nxt    = '0;
+            UART_select_nxt     = UART_FSM;
+            song_select_nxt     = '0;
+            song_start_nxt      = '0;
+            song_stop_nxt       = '0;
+
+            if (key == ESC) UART_data_nxt = ESC;
+            else UART_data_nxt = '0;
+        end
+    endcase
+end
+
+always_comb begin
+    state_nxt = state;
+
+    case(state)
+        INIT: state_nxt = IDLE;
+        IDLE: state_nxt = (key == ENTER) ? SONG_CHOOSING : IDLE;
+        SONG_CHOOSING: begin
+            if(key == ENTER) state_nxt = SONG_VERIF;
+            else if(key == ESC) state_nxt = IDLE;
+            else state_nxt = SONG_CHOOSING;
+        end
+        SONG_VERIF: begin
+            if(UART_ready == '1) state_nxt = SONG_PLAYING;
+            else state_nxt = SONG_VERIF;
+        end
+        SONG_PLAYING: begin
+            if((key == ESC) || (engine.status == STOP)) state_nxt = SONG_CHOOSING;
+            else if(engine.status == END_GAME) state_nxt = END_SCREEN;
+            else state_nxt = SONG_PLAYING;
+        end
+        END_SCREEN: begin
+            if(key == ESC) state_nxt = SONG_CHOOSING;
+            else state_nxt = END_SCREEN;
         end
     endcase
 end
