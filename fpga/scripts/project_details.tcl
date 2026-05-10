@@ -33,6 +33,8 @@ set xdc_files {
 set sv_files {
     ../rtl/vga_pkg.sv
     ../rtl/vga_timing.sv
+    ../rtl/master_fsm.sv
+    ../rtl/game_pkg.sv
     ../rtl/draw_bg.sv
     ../rtl/top_vga.sv
     rtl/top_vga_basys3.sv
