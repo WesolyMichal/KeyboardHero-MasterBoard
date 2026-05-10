@@ -8,7 +8,7 @@ package game_pkg;
         logic [3:0] data;
     } note_t;
 
-    typedef enum logic [1:0] {HIT, MISS, STOP, END_GAME} game_action;
+    typedef enum logic [1:0] {HIT, MISS, IDLE, END_GAME} game_action;
 
     typedef struct packed {
         logic [5:0] buttons;
@@ -24,7 +24,7 @@ package game_pkg;
     localparam logic [11:0] COLOUR_CYAN = 12'h0_f_f;
 
     //HIT MARGINS
-    localparam int HIT_WINDOW = 50;
+    localparam HIT_MARGIN = 50;
 
     //KEY CODES - all are placeholders
     localparam ESC = 8'hff;

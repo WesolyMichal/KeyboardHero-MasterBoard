@@ -10,6 +10,7 @@ module top_master(
 game_if engine_out;
 
 note_t note;
+wire logic [7:0] note_addr;
 
 wire logic [7:0] UART_data, fsm_data;
 wire logic UART_ready, UART_select;
@@ -70,14 +71,22 @@ game_engine u_game_engine(
     .clk,
     .rst_n,
     .tick,
+    .song_start,
 
     .note,
-    .shift_note,
+    .note_addr,
 
     .buttons,
     .strum,
 
     .game_data(engine_out)
+);
+
+song_rom u_song_rom(
+    .clk,
+    .note,
+    .note_addr,
+    .song_select
 );
 
 endmodule

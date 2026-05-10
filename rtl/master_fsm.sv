@@ -104,7 +104,7 @@ always_comb begin
         end
 
         SONG_PLAYING: begin
-            if ((key == ESC) || (engine.status == STOP)) begin
+            if (key == ESC) begin
                 timer_enable_nxt    = '0;
                 UART_data_nxt       = '0;
                 UART_select_nxt     = UART_FSM;
@@ -156,7 +156,7 @@ always_comb begin
             else state_nxt = SONG_VERIF;
         end
         SONG_PLAYING: begin
-            if((key == ESC) || (engine.status == STOP)) state_nxt = SONG_CHOOSING;
+            if(key == ESC) state_nxt = SONG_CHOOSING;
             else if(engine.status == END_GAME) state_nxt = END_SCREEN;
             else state_nxt = SONG_PLAYING;
         end
