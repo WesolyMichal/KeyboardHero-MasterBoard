@@ -18,7 +18,7 @@ module game_engine (
 logic [7:0] note_addr_nxt;
 game_if game_data_nxt;
 
-note_t note_nxt, current_note;
+note_t coming_note, current_note, current_note_nxt;
 
 logic [32:0] timer, timer_nxt;
 
@@ -30,42 +30,82 @@ always_ff @(posedge clk or negedge rst_n) begin
         timer <= '0;
         note_addr <= '0;
         game_data <= '0;
+        current_note <= '0;
     end else begin
         timer <= timer_nxt;
         state <= state_nxt;
         note_addr <= note_addr_nxt;
         game_data <= game_data_nxt;
+        current_note <= current_note_nxt;
     end
 end
 
-assign note_nxt = note;
+assign coming_note = note;
 
 always_comb begin
     timer_nxt = timer;
-    state_nxt = state;
     note_addr_nxt = note_addr;
     game_data_nxt = {buttons, game_data.status};
+    current_note_nxt = current_note;
 
     case(state)
         IDLE: begin
-            state_nxt = (song_start == '1) ? WAIT : IDLE;
             note_addr_nxt = '0;
-            game_data_nxt = {6'b0, IDLE};
+            game_data_nxt = {6'b0, PLAYER_IDLE};
+            current_note_nxt = coming_note;
         end
         WAIT: begin
             if(tick) begin
-                state_nxt = (timer == note.waiting - 1) ? SUSTAIN : WAIT;
-                timer_nxt = (timer == note.waiting - 1) ? 0 : timer + 1;
+                timer_nxt = (timer >= current_note.waiting - 1) ? 0 : timer + 1;
+
+                if(timer >= current_note.waiting - 1) note_addr_nxt = note_addr + 1;
 
                 if(strum) begin
-                    if((timer >= note.waiting - HIT_MARGIN) && (buttons === note.buttons)) game_data.status = HIT;
-                    else game_data.status = MISS;
+                    if((timer >= current_note.waiting - HIT_MARGIN) && (buttons === current_note.buttons)) game_data.status = HIT;
+                    else game_data_nxt.status = MISS;
                 end
             end
         end
         SUSTAIN: begin
             if(tick) begin
-                state_nxt = (timer == note.duration - 1) ? WAIT : SUSTAIN;
+                if(timer >= current_note.duration - 1) begin
+                    timer_nxt = '0;
+                    current_note_nxt = coming_note;
+                end else begin
+                    timer_nxt = timer + 1;
+                end
+
+                if(strum) begin
+                    if((timer <= HIT_MARGIN) && (buttons === current_note.buttons)) game_data_nxt.status = HIT;
+                    else game_data_nxt.status = MISS;
+                end
+
+                if((game_data.status == HIT) && (buttons === current_note.long)) game_data_nxt.status = HIT;
+                else game_data_nxt.status = PLAYER_IDLE;
+
+                if(current_note.data == 4'hf) begin
+                    game_data_nxt.status = END_GAME;
+                end
+                
+            end
+        end
+    endcase
+end
+
+always_comb begin
+    state_nxt = state;
+
+    case(state)
+        IDLE: state_nxt = (song_start == '1) ? WAIT : IDLE;
+
+        WAIT: if(tick) state_nxt = (timer == current_note.waiting - 1) ? SUSTAIN : WAIT;
+
+        SUSTAIN: begin
+            if(tick) begin
+                if(timer == current_note.duration - 1) state_nxt = WAIT;
+                else state_nxt = SUSTAIN;
+
+                if(current_note.data == 4'hf) state_nxt = IDLE;
             end
         end
     endcase

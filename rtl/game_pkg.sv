@@ -8,7 +8,7 @@ package game_pkg;
         logic [3:0] data;
     } note_t;
 
-    typedef enum logic [1:0] {HIT, MISS, IDLE, END_GAME} game_action;
+    typedef enum logic [1:0] {HIT, MISS, PLAYER_IDLE, END_GAME} game_action;
 
     typedef struct packed {
         logic [5:0] buttons;
