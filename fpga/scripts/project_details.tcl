@@ -13,10 +13,10 @@
 #                   Project details                   #
 #-----------------------------------------------------#
 # Project name                                  -- EDIT
-set project_name vga_project
+set project_name KeyboardHero_Master
 
 # Top module name                               -- EDIT
-set top_module top_vga_basys3
+set top_module top_master_basys3
 
 # FPGA device
 set target xc7a35tcpg236-1
@@ -31,19 +31,19 @@ set xdc_files {
 
 # Specify SystemVerilog design files location   -- EDIT
 set sv_files {
-    ../rtl/vga_pkg.sv
-    ../rtl/vga_timing.sv
     ../rtl/master_fsm.sv
     ../rtl/game_pkg.sv
-    ../rtl/draw_bg.sv
-    ../rtl/top_vga.sv
+    ../rtl/game_engine.sv
+    ../rtl/timer.sv
+    ../rtl/UART_mux.sv
+    ../rtl/song_rom.sv
     rtl/top_vga_basys3.sv
 }
 
 # Specify Verilog design files location         -- EDIT
-# set verilog_files {
-#     path/to/file.v
-# }
+set verilog_files {
+    ../fpga/rtl/Ps2Interface.vhd
+}
 
 # Specify VHDL design files location            -- EDIT
 # set vhdl_files {
@@ -51,6 +51,9 @@ set sv_files {
 # }
 
 # Specify files for a memory initialization     -- EDIT
-# set mem_files {
-#    path/to/file.data
-# }
+set mem_files {
+    ../rtl/songs/song_0.data
+    ../rtl/songs/song_1.data
+    ../rtl/songs/song_2.data
+    ../rtl/songs/song_3.data
+}

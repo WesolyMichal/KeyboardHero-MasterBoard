@@ -1,4 +1,4 @@
-module button_buffer(
+module button_decoder(
     input logic clk,
     input logic rst_n,
 

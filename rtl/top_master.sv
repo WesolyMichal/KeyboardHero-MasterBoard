@@ -1,32 +1,58 @@
 import game_pkg::*;
 
 module top_master(
-    input logic clk,
+    input logic clk40MHz,
+    input logic clk100MHz,
+    input logic PS2_clk,
+    input logic PS2_data,
     input logic rst_n,
 
     output logic uart_tx
 );
+
+/*
+ *  PS2 data
+ */ 
+wire logic [7:0] rx_data;
+wire logic read_data;
+
+wire logic [7:0] key;
+
+/*
+ * Game Engine 
+ */
 
 game_if engine_out;
 
 note_t note;
 wire logic [7:0] note_addr;
 
-wire logic [7:0] UART_data, fsm_data;
-wire logic UART_ready, UART_select;
-
-wire logic song_start, song_stop;
-wire logic [3:0] song_select;
-
-wire logic timer_enable, buffer_enable;
-wire logic [7:0] key;
-
 wire logic [5:0] buttons;
 wire logic strum;
 wire logic tick;
 
+/*
+ * Outputs
+ */
+
+wire logic [7:0] UART_data, fsm_data;
+wire logic UART_ready, UART_select;
+
+/*
+ * FSM
+ */
+
+wire logic song_start, song_stop;
+wire logic [3:0] song_select;
+
+wire logic timer_enable, decoder_enable;
+
+/*
+ * Modules
+ */
+
 master_fsm u_master_fsm(
-    .clk,
+    .clk(clk40MHz),
     .rst_n,
     .engine(engine_out),
 
@@ -43,6 +69,23 @@ master_fsm u_master_fsm(
     .key
 );
 
+Ps2Interface u_Ps2Interface(
+    .clk(clk100MHz),
+    .ps2_clk(PS2_clk),
+    .ps2_data(PS2_data),
+    .rst(!rst_n),
+    .rx_data,
+    .read_data
+);
+
+key_buffer u_key_buffer(
+    .clk(clk40MHz),
+    .rst_n,
+    .rx_data,
+    .read_data,
+    .key
+);
+
 UART_mux u_UART_mux(
     .UART_select,
     .fsm_data,
@@ -51,16 +94,16 @@ UART_mux u_UART_mux(
 );
 
 timer #(.FREQUENCY(1000)) u_timer_1kHz(
-    .clk,
+    .clk(clk40MHz),
     .rst_n,
     .enable(timer_enable),
-    .overflow(buffer_enable)
+    .overflow(decoder_enable)
 );
 
-button_buffer u_button_buffer(
-    .clk,
+button_decoder u_button_decoder(
+    .clk(clk40MHz),
     .rst_n,
-    .enable(buffer_enable),
+    .enable(decoder_enable),
     .msg(key),
     .buttons,
     .strum,
@@ -68,7 +111,7 @@ button_buffer u_button_buffer(
 );
 
 game_engine u_game_engine(
-    .clk,
+    .clk(clk40MHz),
     .rst_n,
     .tick,
     .song_start,
@@ -83,7 +126,7 @@ game_engine u_game_engine(
 );
 
 song_rom u_song_rom(
-    .clk,
+    .clk(clk40MHz),
     .note,
     .note_addr,
     .song_select

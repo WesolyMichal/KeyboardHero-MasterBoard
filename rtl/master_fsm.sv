@@ -106,7 +106,7 @@ always_comb begin
         SONG_PLAYING: begin
             if (key == ESC) begin
                 timer_enable_nxt    = '0;
-                UART_data_nxt       = '0;
+                UART_data_nxt       =  8'hAF; //placeholder
                 UART_select_nxt     = UART_FSM;
                 song_select_nxt     = '0;
                 song_start_nxt      = '0;
