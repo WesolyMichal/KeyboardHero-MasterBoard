@@ -8,6 +8,13 @@ package game_pkg;
         logic [3:0] data;
     } note_t;
 
+    typedef struct packed {
+        logic esc;
+        logic enter;
+        logic arr_left;
+        logic arr_right;
+    } navigation;
+
     typedef enum logic [1:0] {HIT, MISS, PLAYER_IDLE, END_GAME} game_action;
 
     typedef struct packed {
@@ -27,27 +34,20 @@ package game_pkg;
     localparam HIT_MARGIN = 50;
 
     //KEY CODES - all are placeholders
-    localparam ESC = 8'hff;
-    localparam ENTER = 8'h0D;
-    localparam ARR_LEFT = 8'h01;
-    localparam ARR_RIGHT = 8'h02;
+    localparam ESC = 8'h76;
+    localparam ENTER = 8'h5A;
+    localparam ARR_LEFT = 8'h41;
+    localparam ARR_RIGHT = 8'h49;
 
-    localparam BUTTON_PRESS_1 = 8'h10;
-    localparam BUTTON_PRESS_2 = 8'h20;
-    localparam BUTTON_PRESS_3 = 8'h30;
-    localparam BUTTON_PRESS_4 = 8'h40;
-    localparam BUTTON_PRESS_5 = 8'h50;
-    localparam BUTTON_PRESS_6 = 8'h60;
-    localparam STRUM_PRESS = 8'h70;
+    localparam BUTTON_1 = 8'h16;
+    localparam BUTTON_2 = 8'h1E;
+    localparam BUTTON_3 = 8'h26;
+    localparam BUTTON_4 = 8'h25;
+    localparam BUTTON_5 = 8'h2E;
+    localparam BUTTON_6 = 8'h36;
+    localparam STRUM    = 8'h29;
 
-    localparam BUTTON_RELEASE_1 = 8'hA0;
-    localparam BUTTON_RELEASE_2 = 8'hB0;
-    localparam BUTTON_RELEASE_3 = 8'hC0;
-    localparam BUTTON_RELEASE_4 = 8'hD0;
-    localparam BUTTON_RELEASE_5 = 8'hE0;
-    localparam BUTTON_RELEASE_6 = 8'hF0;
-    localparam STRUM_RELEASE = 8'h80;
-
+    localparam RELEASED = 8'hF0;
 
     //SONG CHOOSING
     localparam CHOOSE = 4'hf;

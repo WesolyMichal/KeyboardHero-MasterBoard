@@ -1,0 +1,4 @@
+sv work ../../rtl/game_pkg.sv \
+        ../../rtl/input_synch.sv \
+        ../../rtl/button_decoder.sv \
+        button_decoder_tb.sv

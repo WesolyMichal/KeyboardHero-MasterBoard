@@ -12,13 +12,18 @@ module game_engine (
     input note_t note,
     output logic [7:0] note_addr,
     
-    output game_if game_data
+    output game_if game_data,
+
+    output logic UART_send
 );
 
 logic [7:0] note_addr_nxt;
 game_if game_data_nxt;
+logic UART_send_nxt;
 
 note_t coming_note, current_note, current_note_nxt;
+
+logic note_hit, note_hit_nxt;
 
 logic [32:0] timer, timer_nxt;
 
@@ -31,12 +36,16 @@ always_ff @(posedge clk or negedge rst_n) begin
         note_addr <= '0;
         game_data <= '0;
         current_note <= '0;
+        note_hit <= '0;
+        UART_send <= '0;
     end else begin
         timer <= timer_nxt;
         state <= state_nxt;
         note_addr <= note_addr_nxt;
         game_data <= game_data_nxt;
         current_note <= current_note_nxt;
+        note_hit <= note_hit_nxt;
+        UART_send <= UART_send_nxt;
     end
 end
 
@@ -47,6 +56,8 @@ always_comb begin
     note_addr_nxt = note_addr;
     game_data_nxt = {buttons, game_data.status};
     current_note_nxt = current_note;
+    note_hit_nxt = note_hit;
+    UART_send_nxt = '0;
 
     case(state)
         IDLE: begin
@@ -61,32 +72,41 @@ always_comb begin
                 if(timer >= current_note.waiting - 1) note_addr_nxt = note_addr + 1;
 
                 if(strum) begin
-                    if((timer >= current_note.waiting - HIT_MARGIN) && (buttons === current_note.buttons)) game_data.status = HIT;
-                    else game_data_nxt.status = MISS;
+                    if(note_hit) game_data_nxt.status = MISS;
+                    else if((timer >= current_note.waiting - HIT_MARGIN) && (buttons === current_note.buttons)) begin
+                        game_data_nxt.status = HIT;
+                        note_hit_nxt = '1;
+                    end else game_data_nxt.status = MISS;
                 end
+
+                UART_send_nxt = '1;
             end
         end
         SUSTAIN: begin
             if(tick) begin
                 if(timer >= current_note.duration - 1) begin
-                    timer_nxt = '0;
-                    current_note_nxt = coming_note;
+                    if(current_note.data == 4'hf) game_data_nxt.status = END_GAME;
+                    else if(!note_hit) game_data_nxt.status = MISS;
+                    else begin
+                        timer_nxt = '0;
+                        current_note_nxt = coming_note;
+                    end
                 end else begin
                     timer_nxt = timer + 1;
                 end
 
                 if(strum) begin
-                    if((timer <= HIT_MARGIN) && (buttons === current_note.buttons)) game_data_nxt.status = HIT;
-                    else game_data_nxt.status = MISS;
+                    if(note_hit) game_data_nxt.status = MISS;
+                    else if((timer <= HIT_MARGIN) && ((buttons === current_note.buttons))) begin
+                        game_data_nxt.status = HIT;
+                        note_hit_nxt = '1;
+                    end else game_data_nxt.status = MISS;
                 end
 
-                if((game_data.status == HIT) && (buttons === current_note.long)) game_data_nxt.status = HIT;
+                if((game_data.status == HIT) && ((buttons & current_note.long) === current_note.long)) game_data_nxt.status = HIT;
                 else game_data_nxt.status = PLAYER_IDLE;
-
-                if(current_note.data == 4'hf) begin
-                    game_data_nxt.status = END_GAME;
-                end
                 
+                UART_send_nxt = '1;
             end
         end
     endcase
@@ -102,10 +122,8 @@ always_comb begin
 
         SUSTAIN: begin
             if(tick) begin
-                if(timer == current_note.duration - 1) state_nxt = WAIT;
+                if(timer >= current_note.duration - 1) state_nxt = (current_note.data == 4'hf) ? IDLE : WAIT;
                 else state_nxt = SUSTAIN;
-
-                if(current_note.data == 4'hf) state_nxt = IDLE;
             end
         end
     endcase

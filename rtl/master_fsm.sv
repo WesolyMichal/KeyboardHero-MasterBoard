@@ -4,10 +4,11 @@ module master_fsm (
     input logic clk,
     input logic rst_n,
 
-    input logic [7:0] key,
+    input navigation controls,
+
     input game_if engine,
 
-    input logic UART_ready,
+    output logic UART_send,
 
     output logic timer_enable,
     output logic [7:0] UART_data,
@@ -21,6 +22,8 @@ module master_fsm (
 logic [7:0] UART_data_nxt;
 logic [3:0] song_select_nxt;
 
+logic UART_send_nxt;
+
 logic timer_enable_nxt, UART_select_nxt, song_start_nxt, song_stop_nxt;
 
 enum logic [3:0] {INIT, IDLE, SONG_CHOOSING, SONG_VERIF, SONG_PLAYING, END_SCREEN} state, state_nxt;
@@ -31,6 +34,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         timer_enable    <= '0;
         UART_data       <= '0;
         UART_select     <= '0;
+        UART_send       <= '0;
         song_select     <= '0;
         song_start      <= '0;
         song_stop       <= '1;
@@ -39,9 +43,10 @@ always_ff @(posedge clk or negedge rst_n) begin
         timer_enable    <= timer_enable_nxt;
         UART_data       <= UART_data_nxt;
         UART_select     <= UART_select_nxt;
-        song_select     <= song_select_nxt;
+        UART_send       <= UART_send_nxt;
         song_start      <= song_start_nxt;
         song_stop       <= song_stop_nxt;
+        song_select     <= song_select_nxt;
     end
 end
     
@@ -52,6 +57,7 @@ always_comb begin
     song_select_nxt     = song_select;
     song_start_nxt      = song_start;
     song_stop_nxt       = song_stop;
+    UART_send_nxt       = '0;
 
     case(state)
         INIT: begin
@@ -76,12 +82,14 @@ always_comb begin
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
 
-            if(key == ARR_RIGHT) begin 
+            if(controls.arr_right) begin 
                 song_select_nxt = song_select + 1;
-                UART_data_nxt = {(song_select + 1), CHOOSE}; 
-            end else if(key == ARR_LEFT) begin 
+                UART_data_nxt = {(song_select + 1), CHOOSE};
+                UART_send_nxt = '1;
+            end else if(controls.arr_left) begin 
                 song_select_nxt = song_select - 1;
                 UART_data_nxt = {(song_select - 1), CHOOSE};
+                UART_send_nxt = '1;
             end else begin
                 song_select_nxt = song_select;
                 UART_data_nxt = UART_data;
@@ -94,23 +102,21 @@ always_comb begin
             song_select_nxt     = song_select;
             song_stop_nxt       = '0;
             
-            if(UART_ready == '1) begin
-                song_start_nxt = '1;
-                UART_select_nxt = UART_GAME;
-            end else begin
-                song_start_nxt = '0;
-                UART_select_nxt = UART_FSM;
-            end
+            song_start_nxt = '1;
+            UART_select_nxt = UART_GAME;
+            UART_send_nxt = '1;
+
         end
 
         SONG_PLAYING: begin
-            if (key == ESC) begin
+            if (controls.esc) begin
                 timer_enable_nxt    = '0;
                 UART_data_nxt       =  8'hAF; //placeholder
                 UART_select_nxt     = UART_FSM;
                 song_select_nxt     = '0;
                 song_start_nxt      = '0;
                 song_stop_nxt       = '1;
+                UART_send_nxt = '1;
             end else if(engine.status == END_GAME) begin
                 timer_enable_nxt    = '0;
                 UART_data_nxt       = '0;
@@ -134,8 +140,10 @@ always_comb begin
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
 
-            if (key == ESC) UART_data_nxt = ESC;
-            else UART_data_nxt = '0;
+            if (controls.esc) begin
+                UART_data_nxt = ESC;
+                UART_send_nxt = '1;
+            end else UART_data_nxt = '0;
         end
     endcase
 end
@@ -145,23 +153,22 @@ always_comb begin
 
     case(state)
         INIT: state_nxt = IDLE;
-        IDLE: state_nxt = (key == ENTER) ? SONG_CHOOSING : IDLE;
+        IDLE: state_nxt = (controls.enter) ? SONG_CHOOSING : IDLE;
         SONG_CHOOSING: begin
-            if(key == ENTER) state_nxt = SONG_VERIF;
-            else if(key == ESC) state_nxt = IDLE;
+            if(controls.enter) state_nxt = SONG_VERIF;
+            else if(controls.esc) state_nxt = IDLE;
             else state_nxt = SONG_CHOOSING;
         end
         SONG_VERIF: begin
-            if(UART_ready == '1) state_nxt = SONG_PLAYING;
-            else state_nxt = SONG_VERIF;
+            state_nxt = SONG_PLAYING;
         end
         SONG_PLAYING: begin
-            if(key == ESC) state_nxt = SONG_CHOOSING;
+            if(controls.esc) state_nxt = SONG_CHOOSING;
             else if(engine.status == END_GAME) state_nxt = END_SCREEN;
             else state_nxt = SONG_PLAYING;
         end
         END_SCREEN: begin
-            if(key == ESC) state_nxt = SONG_CHOOSING;
+            if(controls.esc) state_nxt = SONG_CHOOSING;
             else state_nxt = END_SCREEN;
         end
     endcase

@@ -17,6 +17,7 @@
     input  wire btnC,
     inout  wire PS2Clk,
     inout  wire PS2Data,
+    
     output wire JA1
 );
 

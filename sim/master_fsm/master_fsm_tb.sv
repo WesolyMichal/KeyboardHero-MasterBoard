@@ -9,9 +9,10 @@ module master_fsm_tb;
 
     logic clk, rst_n;
 
-    logic [7:0] key;
+    navigation controls;
+
     game_if engine;
-    logic UART_ready;
+    wire UART_send;
 
     wire logic timer_enable;
     wire logic [7:0] UART_data;
@@ -34,12 +35,13 @@ module master_fsm_tb;
         .clk,
         .rst_n,
 
-        .key,
+        .controls,
+
         .engine,
 
-        .UART_ready,
         .UART_data,
         .UART_select,
+        .UART_send,
 
         .timer_enable,
 
@@ -49,48 +51,50 @@ module master_fsm_tb;
     );
 
     initial begin
-        UART_ready = 1'b1;
         engine = '0;
-        key = '0;
+        controls = '0;
         rst_n = 1'b1;
         @(negedge clk) rst_n = 1'b0;
         @(negedge clk) rst_n = 1'b1;
 
         repeat(10) @(negedge clk);
-        key = ENTER;
-        @(negedge clk) key = '0;
+        controls.enter = '1;
+        @(negedge clk) controls.enter = '0;
         
         repeat(5) @(negedge clk);
-        key = ARR_RIGHT;
-        @(negedge clk) key = ARR_RIGHT;
-        @(negedge clk) key = ARR_RIGHT;
-        @(negedge clk) key = ARR_LEFT;
-        @(negedge clk) key = '0;
+        controls.arr_right = '1;
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk) controls.arr_right = '0;
+        controls.arr_left = '1;
+        @(negedge clk) controls.arr_left = '0;
 
         repeat(5) @(negedge clk);
-        key = ENTER;
-        @(negedge clk) key = '0;
+        controls.enter = '1;
+        @(negedge clk) controls.enter = '0;
 
         repeat(20) @(negedge clk);
         engine.status = END_GAME;
         @(negedge clk) engine.status = PLAYER_IDLE;
 
         repeat(5) @(negedge clk);
-        key = ESC;
-        @(negedge clk) key = '0;
+        controls.esc = '1;
+        @(negedge clk) controls.esc = '0;
 
         repeat(5) @(negedge clk);
-        key = ARR_RIGHT;
-        @(negedge clk) key = ARR_RIGHT;
-        @(negedge clk) key = ARR_LEFT;
-        @(negedge clk) key = '0;
+        controls.arr_right = '1;
+        @(negedge clk);
+        @(negedge clk) controls.arr_right = '0;
+        controls.arr_left = '1;
+        @(negedge clk) controls.arr_left = '0;
 
         repeat(5) @(negedge clk);
-        key = ENTER;
+        controls.enter = '1;
+        @(negedge clk) controls.enter = '0;
 
-        repeat(10) @(negedge clk);
-        key = ESC;
-        @(negedge clk) key = '0;
+        repeat(9) @(negedge clk);
+        controls.esc = '1;
+        @(negedge clk) controls.esc = '0;
 
         repeat(10) @(negedge clk);
         $finish;

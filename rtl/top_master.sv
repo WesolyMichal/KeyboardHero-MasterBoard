@@ -7,6 +7,7 @@ module top_master(
     input logic PS2_data,
     input logic rst_n,
 
+    output logic [7:0] led,
     output logic uart_tx
 );
 
@@ -14,9 +15,10 @@ module top_master(
  *  PS2 data
  */ 
 wire logic [7:0] rx_data;
-wire logic read_data;
+wire logic read_data_100MHz;
+wire logic read_data_40MHz;
 
-wire logic [7:0] key;
+wire navigation controls;
 
 /*
  * Game Engine 
@@ -36,7 +38,7 @@ wire logic tick;
  */
 
 wire logic [7:0] UART_data, fsm_data;
-wire logic UART_ready, UART_select;
+wire logic game_UART_send, fsm_UART_send, UART_select;
 
 /*
  * FSM
@@ -47,6 +49,8 @@ wire logic [3:0] song_select;
 
 wire logic timer_enable, decoder_enable;
 
+assign led = engine_out;
+
 /*
  * Modules
  */
@@ -54,7 +58,10 @@ wire logic timer_enable, decoder_enable;
 master_fsm u_master_fsm(
     .clk(clk40MHz),
     .rst_n,
+
     .engine(engine_out),
+
+    .controls,
 
     .song_start,
     .song_stop,
@@ -63,10 +70,7 @@ master_fsm u_master_fsm(
     .timer_enable,
 
     .UART_data(fsm_data),
-    .UART_ready,
-    .UART_select,
-
-    .key
+    .UART_select
 );
 
 Ps2Interface u_Ps2Interface(
@@ -75,15 +79,7 @@ Ps2Interface u_Ps2Interface(
     .ps2_data(PS2_data),
     .rst(!rst_n),
     .rx_data,
-    .read_data
-);
-
-key_buffer u_key_buffer(
-    .clk(clk40MHz),
-    .rst_n,
-    .rx_data,
-    .read_data,
-    .key
+    .read_data(read_data_100MHz)
 );
 
 UART_mux u_UART_mux(
@@ -100,14 +96,26 @@ timer #(.FREQUENCY(1000)) u_timer_1kHz(
     .overflow(decoder_enable)
 );
 
+input_synch u_input_synch(
+    .clk40MHz,
+    .clk100MHz,
+    .rst_n,
+
+    .read_data_100MHz,
+    .read_data_40MHz
+);
+
 button_decoder u_button_decoder(
     .clk(clk40MHz),
     .rst_n,
     .enable(decoder_enable),
-    .msg(key),
+    .rx_data,
+    .read_data(read_data_40MHz),
     .buttons,
     .strum,
-    .tick
+    .tick,
+
+    .controls
 );
 
 game_engine u_game_engine(
@@ -122,7 +130,9 @@ game_engine u_game_engine(
     .buttons,
     .strum,
 
-    .game_data(engine_out)
+    .game_data(engine_out),
+
+    .UART_send(game_UART_send)
 );
 
 song_rom u_song_rom(
