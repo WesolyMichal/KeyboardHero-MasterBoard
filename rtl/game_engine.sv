@@ -5,6 +5,7 @@ module game_engine (
     input logic rst_n,
     input logic tick,
     input logic song_start,
+    input logic song_stop,
 
     input logic [5:0] buttons,
     input logic strum,
@@ -85,28 +86,36 @@ always_comb begin
         SUSTAIN: begin
             if(tick) begin
                 if(timer >= current_note.duration - 1) begin
-                    if(current_note.data == 4'hf) game_data_nxt.status = END_GAME;
-                    else if(!note_hit) game_data_nxt.status = MISS;
-                    else begin
-                        timer_nxt = '0;
-                        current_note_nxt = coming_note;
-                    end
+
+                    if(current_note.data == 4'hf) begin
+                        game_data_nxt.status = END_GAME;
+                    end else if(!note_hit) game_data_nxt.status = MISS;
+                    else game_data_nxt.status = PLAYER_IDLE;
+
+                    timer_nxt = '0;
+                    note_hit_nxt = '0;
+                    current_note_nxt = coming_note;
+
                 end else begin
+                    
+                    if(strum) begin
+                        if(note_hit) game_data_nxt.status = MISS;
+                        else if((timer <= HIT_MARGIN) && ((buttons === current_note.buttons))) begin
+                            game_data_nxt.status = HIT;
+                            note_hit_nxt = '1;
+                        end else game_data_nxt.status = MISS;
+                    end
+
+                    if(game_data.status == HIT) begin
+                        if ((buttons & current_note.long) === current_note.long) game_data_nxt.status = HIT;
+                        else game_data_nxt.status = PLAYER_IDLE;
+                    end
+
                     timer_nxt = timer + 1;
                 end
-
-                if(strum) begin
-                    if(note_hit) game_data_nxt.status = MISS;
-                    else if((timer <= HIT_MARGIN) && ((buttons === current_note.buttons))) begin
-                        game_data_nxt.status = HIT;
-                        note_hit_nxt = '1;
-                    end else game_data_nxt.status = MISS;
-                end
-
-                if((game_data.status == HIT) && ((buttons & current_note.long) === current_note.long)) game_data_nxt.status = HIT;
-                else game_data_nxt.status = PLAYER_IDLE;
                 
                 UART_send_nxt = '1;
+                
             end
         end
     endcase
@@ -127,6 +136,8 @@ always_comb begin
             end
         end
     endcase
+
+    if(song_stop) state_nxt = IDLE;
 end
 
 endmodule

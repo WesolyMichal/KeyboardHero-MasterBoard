@@ -3,7 +3,7 @@ import game_pkg::*;
 module master_fsm (
     input logic clk,
     input logic rst_n,
-
+    
     input navigation controls,
 
     input game_if engine,
@@ -62,72 +62,95 @@ always_comb begin
     case(state)
         INIT: begin
             timer_enable_nxt    = '0;
+
             UART_data_nxt       = ENTER;
             UART_select_nxt     = UART_FSM;
+            UART_send_nxt       = '1;
+
             song_select_nxt     = '0;
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
         end
         IDLE: begin
             timer_enable_nxt    = '0;
-            UART_data_nxt       = '0;
+
+            UART_data_nxt       = ENTER;
             UART_select_nxt     = UART_FSM;
+            UART_send_nxt       = (controls.enter) ? '1 : '0;
+
             song_select_nxt     = '0;
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
         end
         SONG_CHOOSING: begin
             timer_enable_nxt    = '0;
+
             UART_select_nxt     = UART_FSM;
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
 
             if(controls.arr_right) begin 
                 song_select_nxt = song_select + 1;
-                UART_data_nxt = {(song_select + 1), CHOOSE};
-                UART_send_nxt = '1;
+                UART_data_nxt   = {(song_select + 1), CHOOSE};
+                UART_send_nxt   = '1;
             end else if(controls.arr_left) begin 
                 song_select_nxt = song_select - 1;
-                UART_data_nxt = {(song_select - 1), CHOOSE};
-                UART_send_nxt = '1;
+                UART_data_nxt   = {(song_select - 1), CHOOSE};
+                UART_send_nxt   = '1;
+            end else if(controls.enter) begin
+                song_select_nxt = song_select;
+                UART_data_nxt   = {song_select, CONFIRM};
+                UART_send_nxt   = '1;
             end else begin
                 song_select_nxt = song_select;
-                UART_data_nxt = UART_data;
+                UART_data_nxt   = UART_data;
+                UART_send_nxt   = '0;
             end
 
         end
         SONG_VERIF: begin
-            timer_enable_nxt    = '0;
-            UART_data_nxt       = {song_select, CONFIRM};
-            song_select_nxt     = song_select;
-            song_stop_nxt       = '0;
+            timer_enable_nxt = '1;
+
+            UART_data_nxt = UART_data;
+            UART_select_nxt = UART_GAME;
+            UART_send_nxt = '0;
+
+            song_select_nxt = song_select;
+            song_stop_nxt = '0;
             
             song_start_nxt = '1;
-            UART_select_nxt = UART_GAME;
-            UART_send_nxt = '1;
+
 
         end
 
         SONG_PLAYING: begin
             if (controls.esc) begin
                 timer_enable_nxt    = '0;
-                UART_data_nxt       =  8'hAF; //placeholder
+
+                UART_data_nxt       = HALT;
                 UART_select_nxt     = UART_FSM;
+                UART_send_nxt       = '1;
+
                 song_select_nxt     = '0;
                 song_start_nxt      = '0;
                 song_stop_nxt       = '1;
-                UART_send_nxt = '1;
+
             end else if(engine.status == END_GAME) begin
                 timer_enable_nxt    = '0;
+
                 UART_data_nxt       = '0;
                 UART_select_nxt     = UART_FSM;
+
                 song_select_nxt     = '0;
                 song_start_nxt      = '0;
-                song_stop_nxt       = '1; //nie wiem, czy to potrzebne
+                song_stop_nxt       = '0;
             end else begin
                 timer_enable_nxt    = '1;
+
                 UART_data_nxt       = '0;
                 UART_select_nxt     = UART_GAME;
+                UART_send_nxt       = '0;
+                
                 song_select_nxt     = song_select;
                 song_start_nxt      = '0;
                 song_stop_nxt       = '0;
@@ -135,7 +158,9 @@ always_comb begin
         end
         END_SCREEN: begin
             timer_enable_nxt    = '0;
+
             UART_select_nxt     = UART_FSM;
+
             song_select_nxt     = '0;
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
@@ -143,7 +168,10 @@ always_comb begin
             if (controls.esc) begin
                 UART_data_nxt = ESC;
                 UART_send_nxt = '1;
-            end else UART_data_nxt = '0;
+            end else begin
+                UART_data_nxt = '0;
+                UART_send_nxt = '0;
+            end
         end
     endcase
 end

@@ -31,7 +31,10 @@ package game_pkg;
     localparam logic [11:0] COLOUR_CYAN = 12'h0_f_f;
 
     //HIT MARGINS
-    localparam HIT_MARGIN = 50;
+    //localparam HIT_MARGIN = 50;
+
+    //for simulation
+    localparam HIT_MARGIN = 5;
 
     //KEY CODES - all are placeholders
     localparam ESC = 8'h76;
@@ -52,6 +55,8 @@ package game_pkg;
     //SONG CHOOSING
     localparam CHOOSE = 4'hf;
     localparam CONFIRM = 4'hA;
+
+    localparam HALT = 8'hff;
 
     //UART SELECT
     localparam UART_FSM = 1'b0;

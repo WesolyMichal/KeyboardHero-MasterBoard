@@ -12,12 +12,13 @@
  * Top level synthesizable module including the project top and all the FPGA-referred modules.
  */
 
- module top_vga_basys3 (
+ module top_master_basys3 (
     input  wire clk,
     input  wire btnC,
     inout  wire PS2Clk,
     inout  wire PS2Data,
     
+    output wire [7:0] led,
     output wire JA1
 );
 
@@ -43,11 +44,6 @@ logic [7:0] safe_start = 0;
 /**
  * Signals assignments
  */
-
-assign JA1 = pclk_mirror;
-
-logic placeholder_wire;
-
 
 /**
  * FPGA submodules placement
@@ -82,9 +78,10 @@ top_master u_top_master (
     .clk40MHz,
     .clk100MHz,
     .rst_n(!btnC),
-    .PS2_clk(PS2CLK),
-    .PS2_data(PS2DATA),
-    .uart_tx(placeholder_wire)
+    .PS2_clk(PS2Clk),
+    .PS2_data(PS2Data),
+    .led,
+    .uart_tx(JA1)
 );
 
 endmodule

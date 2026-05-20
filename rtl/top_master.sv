@@ -38,7 +38,7 @@ wire logic tick;
  */
 
 wire logic [7:0] UART_data, fsm_data;
-wire logic game_UART_send, fsm_UART_send, UART_select;
+wire logic UART_send, game_UART_send, fsm_UART_send, UART_select;
 
 /*
  * FSM
@@ -70,6 +70,7 @@ master_fsm u_master_fsm(
     .timer_enable,
 
     .UART_data(fsm_data),
+    .UART_send(fsm_UART_send),
     .UART_select
 );
 
@@ -85,8 +86,19 @@ Ps2Interface u_Ps2Interface(
 UART_mux u_UART_mux(
     .UART_select,
     .fsm_data,
+    .fsm_UART_send,
     .game_data(engine_out),
-    .UART_data
+    .game_UART_send,
+    .UART_data,
+    .UART_send
+);
+
+list_ch08_04_uart u_UART_tx(
+    .clk(clk40MHz),
+    .reset(!rst_n),
+    .wr_uart(UART_send),
+    .w_data(UART_data),
+    .tx(uart_tx)
 );
 
 timer #(.FREQUENCY(1000)) u_timer_1kHz(
@@ -113,9 +125,8 @@ button_decoder u_button_decoder(
     .read_data(read_data_40MHz),
     .buttons,
     .strum,
-    .tick,
-
-    .controls
+    .controls,
+    .tick
 );
 
 game_engine u_game_engine(
@@ -123,6 +134,7 @@ game_engine u_game_engine(
     .rst_n,
     .tick,
     .song_start,
+    .song_stop,
 
     .note,
     .note_addr,
