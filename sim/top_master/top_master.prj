@@ -1,0 +1,18 @@
+sv work ../../rtl/game_pkg.sv \
+        ../../rtl/button_decoder.sv \
+        ../../rtl/input_synch.sv \
+        ../../rtl/master_fsm.sv \
+        ../../rtl/song_rom.sv \
+        ../../rtl/timer.sv \
+        ../../rtl/UART_mux.sv \
+        ../../rtl/game_engine.sv \
+        ../../rtl/top_master.sv \
+        top_master_tb.sv
+
+verilog work ../../rtl/uart/uart.v \
+             ../../rtl/uart/uart_rx.v \
+             ../../rtl/uart/uart_tx.v \
+             ../../rtl/uart/fifo.v \
+             ../../rtl/uart/mod_m_counter.v
+
+vhdl work ../../fpga/rtl/Ps2Interface.vhd

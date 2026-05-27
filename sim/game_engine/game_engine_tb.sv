@@ -115,8 +115,7 @@ module game_engine_tb;
         reset();
 
         begin_song();
-        hit(LATE, HOLD_PART);
-        hit(LITTLE_EARLY, CORRECT);
+        hit(ON, HOLD_PART);
         end_song();
 
         $finish;

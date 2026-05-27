@@ -93,7 +93,7 @@ UART_mux u_UART_mux(
     .UART_send
 );
 
-list_ch08_04_uart u_UART_tx(
+uart u_UART_tx(
     .clk(clk40MHz),
     .reset(!rst_n),
     .wr_uart(UART_send),
