@@ -1,6 +1,6 @@
 import game_pkg::*;
 
-module game_engine_tb;
+module song_rom_tb;
     
     timeunit 1ns;
     timeprecision 1ps;
@@ -18,7 +18,7 @@ module game_engine_tb;
     logic [5:0] buttons;
     logic strum;
 
-    note_t note;
+    wire note_t note;
 
     /*
      * Output signals
@@ -51,31 +51,23 @@ module game_engine_tb;
     end
 
     task reset;
-        {song_start, song_stop, note} = '0;
+        {song_start, song_stop, buttons, strum} = '0;
         rst_n = '1;
         repeat(5) @(negedge clk);
         rst_n = '0;
         @(negedge clk) rst_n = '1;
     endtask
 
-    task set_note(logic [15:0] waiting, duration, logic [5:0] buttons, long, logic [3:0] data);
-        note.waiting = waiting;
-        note.duration = duration;
-        note.buttons = buttons;
-        note.long = long;
-        note.data = data;
-    endtask
-
     task begin_song;
-        set_note(10, 10, 6'b110011, 6'b000011, 4'h0);
         @(negedge clk) song_start = '1;
         @(negedge clk) song_start = '0;
     endtask
 
     task end_song;
-        repeat(note.duration + note.waiting) @(negedge tick);
-        note.data = 4'hf;
-        repeat(note.duration + note.waiting) @(negedge tick);
+        forever begin
+            if(game_data.status != END_GAME) @(negedge clk);
+            else break;
+        end
     endtask
 
     task interruption;
@@ -115,14 +107,12 @@ module game_engine_tb;
         reset();
 
         begin_song();
-        hit(LATE, HOLD_PART);
-        hit(LITTLE_EARLY, CORRECT);
         end_song();
 
         $finish;
     end
 
-    game_engine dut(
+    game_engine u_game_engine(
         .clk,
         .rst_n,
 
@@ -138,6 +128,13 @@ module game_engine_tb;
 
         .game_data,
         .UART_send
+    );
+
+    song_rom dut(
+        .clk,
+        .note,
+        .note_addr,
+        .song_select(0)
     );
 
 endmodule

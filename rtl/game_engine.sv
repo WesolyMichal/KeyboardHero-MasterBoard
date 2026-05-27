@@ -87,9 +87,8 @@ always_comb begin
             if(tick) begin
                 if(timer >= current_note.duration - 1) begin
 
-                    if(current_note.data == 4'hf) begin
-                        game_data_nxt.status = END_GAME;
-                    end else if(!note_hit) game_data_nxt.status = MISS;
+                    if(current_note.data == 4'hf) game_data_nxt.status = END_GAME;
+                    else if(!note_hit) game_data_nxt.status = MISS;
                     else game_data_nxt.status = PLAYER_IDLE;
 
                     timer_nxt = '0;
@@ -127,7 +126,7 @@ always_comb begin
     case(state)
         IDLE: state_nxt = (song_start == '1) ? WAIT : IDLE;
 
-        WAIT: if(tick) state_nxt = (timer == current_note.waiting - 1) ? SUSTAIN : WAIT;
+        WAIT: if(tick) state_nxt = (timer >= current_note.waiting - 1) ? SUSTAIN : WAIT;
 
         SUSTAIN: begin
             if(tick) begin

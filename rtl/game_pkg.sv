@@ -33,7 +33,7 @@ package game_pkg;
     //HIT MARGINS
     //localparam HIT_MARGIN = 50;
 
-    //for simulation
+    //for simulation !!!
     localparam HIT_MARGIN = 5;
 
     //KEY CODES - all are placeholders
