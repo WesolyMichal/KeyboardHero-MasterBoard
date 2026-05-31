@@ -89,7 +89,11 @@ always_comb begin
             song_start_nxt      = '0;
             song_stop_nxt       = '0;
 
-            if(controls.arr_right) begin 
+            if(controls.esc) begin
+                song_select_nxt = 0;
+                UART_data_nxt   = HALT;
+                UART_send_nxt   = '1;
+            end else if(controls.arr_right) begin 
                 song_select_nxt = song_select + 1;
                 UART_data_nxt   = {2'b0, (song_select + 1), CHOOSE};
                 UART_send_nxt   = '1;
@@ -166,7 +170,7 @@ always_comb begin
             song_stop_nxt       = '0;
 
             if (controls.esc) begin
-                UART_data_nxt = ESC;
+                UART_data_nxt = HALT;
                 UART_send_nxt = '1;
             end else begin
                 UART_data_nxt = '0;
