@@ -26,29 +26,37 @@ set target xc7a35tcpg236-1
 #-----------------------------------------------------#
 # Specify .xdc files location                   -- EDIT
 set xdc_files {
-    constraints/top_vga_basys3.xdc
+    constraints/top_master_basys3.xdc
 }
 
 # Specify SystemVerilog design files location   -- EDIT
 set sv_files {
     ../rtl/master_fsm.sv
+    ../rtl/button_decoder.sv
+    ../rtl/input_synch.sv
     ../rtl/game_pkg.sv
     ../rtl/game_engine.sv
     ../rtl/timer.sv
     ../rtl/UART_mux.sv
     ../rtl/song_rom.sv
-    rtl/top_vga_basys3.sv
+    ../rtl/top_master.sv
+    rtl/top_master_basys3.sv
 }
 
 # Specify Verilog design files location         -- EDIT
 set verilog_files {
-    ../fpga/rtl/Ps2Interface.vhd
+    ../rtl/uart/uart.v
+    ../rtl/uart/uart_rx.v
+    ../rtl/uart/uart_tx.v
+    ../rtl/uart/fifo.v
+    ../rtl/uart/mod_m_counter.v
+    rtl/clk_wiz_0_clk_wiz.v
 }
 
 # Specify VHDL design files location            -- EDIT
-# set vhdl_files {
-#    path/to/file.vhd
-# }
+set vhdl_files {
+   rtl/Ps2Interface.vhd
+}
 
 # Specify files for a memory initialization     -- EDIT
 set mem_files {

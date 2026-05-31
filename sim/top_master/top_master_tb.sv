@@ -6,20 +6,14 @@ module top_master_tb;
     timeprecision 1ps;
 
     localparam CLK40_PERIOD = 25;
-    localparam CLK100_PERIOD = 10;
 
     /*
      * Input signal
      */
-    logic clk40MHz, clk100MHz, rst_n;
+    logic clk40MHz, rst_n;
 
-    logic [7:0] Ps2Input;
-    logic Ps2Send;
-
-    wire ps2_clk, ps2_data;
-
-    pullup(ps2_clk);
-    pullup(ps2_data);
+    logic [7:0] rx_data;
+    logic read_data;
 
     /*
      * Output signals
@@ -37,49 +31,69 @@ module top_master_tb;
         forever #(CLK40_PERIOD/2) clk40MHz = ~clk40MHz;
     end
 
-    initial begin: clk100
-        clk100MHz = 1'b1;
-        forever #(CLK100_PERIOD/2) clk100MHz = ~clk100MHz;
-    end
-
     task reset;
         rst_n = 1'b0;
-        {Ps2Input, Ps2Send} = '0;
-        @(negedge clk100MHz) rst_n = 1'b1; 
+        {rx_data, read_data} = '0;
+        @(negedge clk40MHz) rst_n = 1'b1;
     endtask
 
     task send_input(logic [7:0] data);
-        Ps2Input = data;
-        Ps2Send = 1'b1;
-        repeat(5) @(negedge clk100MHz);
-        Ps2Send = 1'b0;
+        @(negedge clk40MHz);
+        rx_data = data;
+        read_data = 1'b1;
+        @(negedge clk40MHz);
+        {rx_data, read_data} = '0;
+    endtask
+
+    task send_and_release(logic [7:0] data);
+        #1ms;
+        send_input(data);
+        send_input(RELEASED);
+        send_input(data);
     endtask
 
     initial begin: main
         reset();
-        send_input(ENTER);
 
+        send_and_release(ENTER);
+
+        send_and_release(ARR_RIGHT);
+
+        send_and_release(ARR_RIGHT);
+
+        send_and_release(ARR_LEFT);
+
+        send_and_release(ENTER);
+
+        #1ms;
+        send_input(BUTTON_1);
+        #1ms;
+        send_input(BUTTON_2);
+        #1ms;
+        send_input(BUTTON_3);
+        #1ms;
+        send_input(BUTTON_4);
+        #1ms;
+        send_input(BUTTON_5);
+        #1ms;
+        send_input(BUTTON_6);
+        #1ms;
+        send_input(STRUM);
+        
+        #2ms;
+        send_and_release(ESC);
+
+        #1ms;
         $finish;
     end
 
-    Ps2Interface u_Input_Ps2(
-        .clk(clk100MHz),
-        .rst(!rst_n),
-        .ps2_clk,
-        .ps2_data,
-        
-        .tx_data(Ps2Input),
-        .write_data(Ps2Send)
-    );
-
-    top_master dut(
-        .clk100MHz,
+    top_master_4test dut(
         .clk40MHz,
 
         .rst_n,
 
-        .PS2_clk(ps2_clk),
-        .PS2_data(ps2_data),
+        .rx_data,
+        .read_data,
 
         .uart_tx,
         .led

@@ -1,22 +1,14 @@
 import game_pkg::*;
 
-module top_master(
+module top_master_4test(
     input logic clk40MHz,
-    input logic clk100MHz,
-    input logic PS2_clk,
-    input logic PS2_data,
     input logic rst_n,
+    input logic [7:0] rx_data,
+    input logic read_data,
 
     output logic [7:0] led,
     output logic uart_tx
 );
-
-/*
- *  PS2 data
- */ 
-wire logic [7:0] rx_data;
-wire logic read_data_100MHz;
-wire logic read_data_40MHz;
 
 wire navigation controls;
 
@@ -74,14 +66,6 @@ master_fsm u_master_fsm(
     .UART_select
 );
 
-Ps2Interface u_Ps2Interface(
-    .clk(clk100MHz),
-    .ps2_clk(PS2_clk),
-    .ps2_data(PS2_data),
-    .rst(!rst_n),
-    .rx_data,
-    .read_data(read_data_100MHz)
-);
 
 UART_mux u_UART_mux(
     .UART_select,
@@ -108,21 +92,12 @@ timer #(.FREQUENCY(1000)) u_timer_1kHz(
     .overflow(decoder_enable)
 );
 
-input_synch u_input_synch(
-    .clk40MHz,
-    .clk100MHz,
-    .rst_n,
-
-    .read_data_100MHz,
-    .read_data_40MHz
-);
-
 button_decoder u_button_decoder(
     .clk(clk40MHz),
     .rst_n,
     .enable(decoder_enable),
     .rx_data,
-    .read_data(read_data_40MHz),
+    .read_data,
     .buttons,
     .strum,
     .controls,

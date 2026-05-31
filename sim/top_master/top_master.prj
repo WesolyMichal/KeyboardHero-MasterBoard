@@ -6,7 +6,7 @@ sv work ../../rtl/game_pkg.sv \
         ../../rtl/timer.sv \
         ../../rtl/UART_mux.sv \
         ../../rtl/game_engine.sv \
-        ../../rtl/top_master.sv \
+        top_master_4test.sv \
         top_master_tb.sv
 
 verilog work ../../rtl/uart/uart.v \

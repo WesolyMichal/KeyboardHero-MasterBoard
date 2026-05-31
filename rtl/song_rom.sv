@@ -2,7 +2,7 @@ import game_pkg::*;
 
 module song_rom(
     input logic clk,
-    input logic [3:0] song_select,
+    input logic [1:0] song_select,
 
     input logic [7:0] note_addr,
     output note_t note

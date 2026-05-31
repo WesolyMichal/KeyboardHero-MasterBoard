@@ -14,13 +14,13 @@ module master_fsm (
     output logic [7:0] UART_data,
     output logic UART_select,
 
-    output logic [3:0] song_select,
+    output logic [1:0] song_select,
     output logic song_start,
     output logic song_stop
 );
 
 logic [7:0] UART_data_nxt;
-logic [3:0] song_select_nxt;
+logic [1:0] song_select_nxt;
 
 logic UART_send_nxt;
 
@@ -30,7 +30,7 @@ enum logic [3:0] {INIT, IDLE, SONG_CHOOSING, SONG_VERIF, SONG_PLAYING, END_SCREE
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
-        state           <= IDLE;
+        state           <= INIT;
         timer_enable    <= '0;
         UART_data       <= '0;
         UART_select     <= '0;
@@ -91,15 +91,15 @@ always_comb begin
 
             if(controls.arr_right) begin 
                 song_select_nxt = song_select + 1;
-                UART_data_nxt   = {(song_select + 1), CHOOSE};
+                UART_data_nxt   = {2'b0, (song_select + 1), CHOOSE};
                 UART_send_nxt   = '1;
             end else if(controls.arr_left) begin 
                 song_select_nxt = song_select - 1;
-                UART_data_nxt   = {(song_select - 1), CHOOSE};
+                UART_data_nxt   = {2'b0, (song_select - 1), CHOOSE};
                 UART_send_nxt   = '1;
             end else if(controls.enter) begin
                 song_select_nxt = song_select;
-                UART_data_nxt   = {song_select, CONFIRM};
+                UART_data_nxt   = {2'b0, song_select, CONFIRM};
                 UART_send_nxt   = '1;
             end else begin
                 song_select_nxt = song_select;
