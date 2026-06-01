@@ -18,7 +18,7 @@
     inout  wire PS2Clk,
     inout  wire PS2Data,
     
-    output wire [7:0] led,
+    output wire [15:0] led,
     output wire JA1
 );
 

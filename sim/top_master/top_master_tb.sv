@@ -65,25 +65,29 @@ module top_master_tb;
 
         send_and_release(ENTER);
 
-        #1ms;
-        send_input(BUTTON_1);
-        #1ms;
-        send_input(BUTTON_2);
-        #1ms;
-        send_input(BUTTON_3);
-        #1ms;
-        send_input(BUTTON_4);
-        #1ms;
-        send_input(BUTTON_5);
-        #1ms;
-        send_input(BUTTON_6);
-        #1ms;
-        send_input(STRUM);
-        
-        #2ms;
-        send_and_release(ESC);
+        repeat(15) begin
+            #1ms send_input(BUTTON_1);
+            #1ms send_input(BUTTON_2);
+            #1ms send_input(BUTTON_3);
+            #1ms send_input(BUTTON_4);
+            #1ms send_input(BUTTON_5);
 
-        #1ms;
+            send_input(RELEASED);
+            send_input(BUTTON_1);
+
+            send_input(RELEASED);
+            send_input(BUTTON_2);
+
+            send_input(RELEASED);
+            send_input(BUTTON_3);
+
+            send_input(RELEASED);
+            send_input(BUTTON_4);
+
+            send_input(RELEASED);
+            send_input(BUTTON_5);
+        end
+
         $finish;
     end
 

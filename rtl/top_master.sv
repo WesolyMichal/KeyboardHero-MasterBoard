@@ -3,11 +3,11 @@ import game_pkg::*;
 module top_master(
     input logic clk40MHz,
     input logic clk100MHz,
-    input logic PS2_clk,
-    input logic PS2_data,
+    inout logic PS2_clk,
+    inout logic PS2_data,
     input logic rst_n,
 
-    output logic [7:0] led,
+    output logic [15:0] led,
     output logic uart_tx
 );
 
@@ -49,7 +49,7 @@ wire logic [1:0] song_select;
 
 wire logic timer_enable, decoder_enable;
 
-assign led = engine_out;
+assign led[7:0] = engine_out;
 
 /*
  * Modules
@@ -84,6 +84,8 @@ Ps2Interface u_Ps2Interface(
 );
 
 UART_mux u_UART_mux(
+    .clk(clk40MHz),
+    .rst_n,
     .UART_select,
     .fsm_data,
     .fsm_UART_send,
@@ -93,7 +95,7 @@ UART_mux u_UART_mux(
     .UART_send
 );
 
-uart u_UART_tx(
+uart #(.DVSR(130))u_UART_tx(
     .clk(clk40MHz),
     .reset(!rst_n),
     .wr_uart(UART_send),
@@ -138,6 +140,7 @@ game_engine u_game_engine(
 
     .note,
     .note_addr,
+    .note_led(led[15:8]),
 
     .buttons,
     .strum,

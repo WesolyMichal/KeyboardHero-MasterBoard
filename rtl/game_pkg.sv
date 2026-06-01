@@ -31,10 +31,10 @@ package game_pkg;
     localparam logic [11:0] COLOUR_CYAN = 12'h0_f_f;
 
     //HIT MARGINS
-    //localparam HIT_MARGIN = 50;
+    localparam HIT_MARGIN = 50;
 
     //for simulation !!!
-    localparam HIT_MARGIN = 5;
+    //localparam HIT_MARGIN = 5;
 
     //KEY CODES - all are placeholders
     localparam ESC = 8'h76;

@@ -14,6 +14,7 @@ module game_engine (
     output logic [7:0] note_addr,
     
     output game_if game_data,
+    output logic [7:0] note_led,
 
     output logic UART_send
 );
@@ -51,6 +52,8 @@ always_ff @(posedge clk or negedge rst_n) begin
 end
 
 assign coming_note = note;
+
+assign note_led = {current_note.buttons, current_note.data[1:0]};
 
 always_comb begin
     timer_nxt = timer;

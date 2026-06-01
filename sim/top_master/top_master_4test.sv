@@ -68,6 +68,8 @@ master_fsm u_master_fsm(
 
 
 UART_mux u_UART_mux(
+    .clk(clk40MHz),
+    .rst_n,
     .UART_select,
     .fsm_data,
     .fsm_UART_send,
@@ -77,7 +79,7 @@ UART_mux u_UART_mux(
     .UART_send
 );
 
-uart u_UART_tx(
+uart #(.DVSR(1))u_UART_tx(
     .clk(clk40MHz),
     .reset(!rst_n),
     .wr_uart(UART_send),
@@ -85,7 +87,7 @@ uart u_UART_tx(
     .tx(uart_tx)
 );
 
-timer #(.FREQUENCY(1000)) u_timer_1kHz(
+timer #(.FREQUENCY(160_000)) u_timer_1kHz(
     .clk(clk40MHz),
     .rst_n,
     .enable(timer_enable),
