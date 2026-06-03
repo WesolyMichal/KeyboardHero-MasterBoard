@@ -1,5 +1,5 @@
 module sine_rom(
-    input logic [7:0] sample_number [0:2],
+    input logic [7:0] phase [0:2],
     output logic signed [7:0] value [0:2]
 );
 
@@ -38,8 +38,10 @@ logic [7:0] sine [0:255] = {
     8'h67, 8'h6A, 8'h6D, 8'h70, 8'h74, 8'h77, 8'h7A, 8'h7D
   };
 
-assign value[0] = sine[sample_number[0]];
-assign value[1] = sine[sample_number[1]];
-assign value[2] = sine[sample_number[2]];
+always_comb begin
+    value[0] = sine[phase[0]];
+    value[1] = sine[phase[1]];
+    value[2] = sine[phase[2]];
+end
 
 endmodule

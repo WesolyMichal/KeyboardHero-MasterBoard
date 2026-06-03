@@ -4,13 +4,8 @@ module lrclk_gen(
     input logic clk,
     input logic rst_n,
 
-    input logic enable_in,
-    output logic enable_out,
-
-    input logic bclk_in,
-
-    output logic lrclk,
-    output logic bclk_out
+    input pmod_internal pmod_in,
+    output pmod_internal pmod_out
 );
 
 enum logic [1:0] {IDLE, LEFT, RIGHT} state, state_nxt;
@@ -23,14 +18,14 @@ always_ff @(posedge clk, negedge rst_n) begin
         state <= IDLE;
         counter <= '0;
         bclk_last <= '0;
-        bclk_out <= '0;
-        enable_out <= '0;
+        pmod_out.bclk <= '0;
+        pmod_out.enable <= '0;
     end else begin
         state <= state_nxt;
         counter <= counter_nxt;
         bclk_last <= bclk_last_nxt;
-        bclk_out <= bclk_in;
-        enable_out <= enable_in;
+        pmod_out.bclk <= pmod_in.bclk;
+        pmod_out.enable <= pmod_in.enable;
     end
 end
 
@@ -39,14 +34,14 @@ always_comb begin
 
     case(state)
         IDLE: begin
-            if(enable_in) begin
+            if(pmod_in.enable) begin
                 state_nxt = LEFT;
                 counter_nxt = RESOLUTION_BITS - 1;
             end else counter_nxt = '0;
         end
         LEFT: begin
-            if(enable_in) begin
-                if((bclk_in) && (bclk_last == 0'b0)) begin
+            if(pmod_in.enable) begin
+                if((pmod_in.bclk) && (bclk_last == 0'b0)) begin
                     if(counter == 0) begin
                         state_nxt = RIGHT;
                         counter_nxt = RESOLUTION_BITS - 1;
@@ -55,8 +50,8 @@ always_comb begin
             end else state_nxt = IDLE;
         end
         RIGHT: begin
-            if(enable_in) begin
-                if((bclk_in) && (bclk_last == 0'b0)) begin
+            if(pmod_in.enable) begin
+                if((pmod_in.bclk) && (bclk_last == 0'b0)) begin
                     if(counter == 0) begin
                         state_nxt = LEFT;
                         counter_nxt = RESOLUTION_BITS - 1;
@@ -66,9 +61,9 @@ always_comb begin
         end
     endcase
 
-    bclk_last_nxt = bclk_in;
+    bclk_last_nxt = pmod_in.bclk;
 end
 
-assign lrclk = (state == RIGHT) || (state == IDLE);
+assign pmod_out.lrclk = (state == RIGHT) || (state == IDLE);
 
 endmodule

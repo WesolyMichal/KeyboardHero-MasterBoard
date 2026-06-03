@@ -1,6 +1,7 @@
 sv work ../../rtl/sound/sound_pkg.sv \
         ../../rtl/sound/bclk_gen.sv \
         ../../rtl/sound/lrclk_gen.sv \
+        ../../rtl/sound/phase_accumulator.sv \
         ../../rtl/sound/sdata_gen.sv \
         ../../rtl/sound/sine_rom.sv \
         sound_gen_tb.sv

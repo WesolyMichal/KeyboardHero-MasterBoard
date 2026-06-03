@@ -8,6 +8,12 @@ package sound_pkg;
         logic shutdown_n;
     } pmod_if;
 
+    typedef struct packed {
+        logic lrclk;
+        logic bclk;
+        logic enable;
+    } pmod_internal;
+
     localparam LR_FREQ = 88_200;
     localparam CLK_FREQ = 40_000_000;
 

@@ -7,10 +7,7 @@ module sdata_gen(
     input logic [RESOLUTION_BITS-1:0] r_data,
     input logic [RESOLUTION_BITS-1:0] l_data,
 
-    input logic lrclk_in,
-    input logic bclk_in,
-
-    input logic enable,
+    input pmod_internal pmod_in,
 
     output pmod_if pmod_out
 );
@@ -36,21 +33,21 @@ always_ff @(posedge clk or negedge rst_n) begin
 end
 
 always_comb begin
-    pmod_out_nxt.bclk = bclk_in;
-    pmod_out_nxt.lrclk = lrclk_in;
+    pmod_out_nxt.bclk = pmod_in.bclk;
+    pmod_out_nxt.lrclk = pmod_in.lrclk;
     pmod_out_nxt.mclk_e = clk;
 
     pmod_out_nxt.sdata = pmod_out.sdata;
     current_data_nxt = current_data;
     bit_counter_nxt = bit_counter;
 
-    lrclk_edge = (lrclk_in != pmod_out.lrclk);
-    bclk_posedge = (pmod_out.bclk == 1'b0) && (bclk_in == 1'b1);
+    lrclk_edge = (pmod_in.lrclk != pmod_out.lrclk);
+    bclk_posedge = (pmod_out.bclk == 1'b0) && (pmod_in.bclk == 1'b1);
 
-    if(enable) begin
+    if(pmod_in.enable) begin
         if(bclk_posedge) begin
             if(lrclk_edge) begin
-                case(lrclk_in)
+                case(pmod_in.lrclk)
                     1'b0: begin
                         current_data_nxt = l_data;
                         pmod_out_nxt.sdata = l_data[RESOLUTION_BITS - 1];
@@ -74,6 +71,6 @@ always_comb begin
     end
 end
 
-assign pmod_out_nxt.shutdown_n = ~enable;
+assign pmod_out_nxt.shutdown_n = ~pmod_in.enable;
 
 endmodule

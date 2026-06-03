@@ -5,9 +5,7 @@ module bclk_gen(
     input logic rst_n,
 
     input logic enable_in,
-    output logic enable_out,
-
-    output logic bclk
+    output pmod_internal pmod_out
 );
 
 enum logic [1:0] {IDLE, ONE, ZERO} state, state_nxt;
@@ -18,11 +16,12 @@ always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         state <= IDLE;
         counter <= '0;
-        enable_out <= '0;
+        pmod_out.enable <= '0;
+        pmod_out.lrclk <= '0;
     end else begin
         state <= state_nxt;
         counter <= counter_nxt;
-        enable_out <= enable_in;
+        pmod_out.enable <= enable_in;
     end
 end
 
@@ -55,6 +54,6 @@ always_comb begin
     endcase
 end
 
-assign bclk = (state == ONE);
+assign pmod_out.bclk = (state == ONE);
 
 endmodule
