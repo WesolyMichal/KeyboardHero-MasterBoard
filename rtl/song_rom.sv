@@ -28,4 +28,17 @@ always_ff @(posedge clk) begin
         2'd3: note <= song_3[note_addr];
     endcase
 end
+
+// logic [47:0] songs[0:3][0:127];
+
+// initial begin
+//     $readmemh("../../rtl/songs/song_0.data", songs[0]);
+//     $readmemh("../../rtl/songs/song_1.data", songs[1]);
+//     $readmemh("../../rtl/songs/song_2.data", songs[2]);
+//     $readmemh("../../rtl/songs/song_3.data", songs[3]);
+// end
+
+// always_ff @(posedge clk)
+//     note <= songs[song_select][note_addr];
+
 endmodule

@@ -6,7 +6,7 @@ module top_master_4test(
     input logic [7:0] rx_data,
     input logic read_data,
 
-    output logic [7:0] led,
+    output logic [15:0] led,
     output logic uart_tx
 );
 
@@ -41,7 +41,9 @@ wire logic [1:0] song_select;
 
 wire logic timer_enable, decoder_enable;
 
-assign led = engine_out;
+wire logic tx_empty;
+
+assign led[7:0] = engine_out;
 
 /*
  * Modules
@@ -54,6 +56,8 @@ master_fsm u_master_fsm(
     .engine(engine_out),
 
     .controls,
+
+    .tx_empty,
 
     .song_start,
     .song_stop,
@@ -84,7 +88,8 @@ uart #(.DVSR(1))u_UART_tx(
     .reset(!rst_n),
     .wr_uart(UART_send),
     .w_data(UART_data),
-    .tx(uart_tx)
+    .tx(uart_tx),
+    .tx_empty_out(tx_empty)
 );
 
 timer #(.FREQUENCY(160_000)) u_timer_1kHz(
@@ -121,7 +126,9 @@ game_engine u_game_engine(
 
     .game_data(engine_out),
 
-    .UART_send(game_UART_send)
+    .UART_send(game_UART_send),
+
+    .note_led(led[15:8])
 );
 
 song_rom u_song_rom(

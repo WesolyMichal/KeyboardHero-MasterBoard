@@ -49,6 +49,8 @@ wire logic [1:0] song_select;
 
 wire logic timer_enable, decoder_enable;
 
+wire logic tx_empty;
+
 assign led[7:0] = engine_out;
 
 /*
@@ -62,6 +64,8 @@ master_fsm u_master_fsm(
     .engine(engine_out),
 
     .controls,
+
+    .tx_empty,
 
     .song_start,
     .song_stop,
@@ -100,7 +104,8 @@ uart #(.DVSR(130))u_UART_tx(
     .reset(!rst_n),
     .wr_uart(UART_send),
     .w_data(UART_data),
-    .tx(uart_tx)
+    .tx(uart_tx),
+    .tx_empty_out(tx_empty)
 );
 
 timer #(.FREQUENCY(1000)) u_timer_1kHz(
