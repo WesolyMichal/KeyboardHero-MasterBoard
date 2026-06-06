@@ -8,6 +8,7 @@ module master_fsm_tb;
     localparam CLK_PERIOD = 25; 
 
     logic clk, rst_n;
+    logic tx_empty = '1;
 
     navigation controls;
 
@@ -18,7 +19,7 @@ module master_fsm_tb;
     wire logic [7:0] UART_data;
     wire logic UART_select;
 
-    wire logic [3:0] song_select;
+    wire logic [1:0] song_select;
     wire logic song_start;
     wire logic song_stop;
 
@@ -47,7 +48,9 @@ module master_fsm_tb;
 
         .song_select,
         .song_start,
-        .song_stop
+        .song_stop,
+
+        .tx_empty
     );
 
     initial begin

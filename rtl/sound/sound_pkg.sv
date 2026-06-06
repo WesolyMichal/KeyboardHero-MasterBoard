@@ -21,4 +21,21 @@ package sound_pkg;
 
     localparam BCLK_HALF_PERIOD = 28;
 
+    typedef enum logic [5:0] {
+        SILENCE,
+        C2, Csh2, D2, Dsh2, E2, F2, Fsh2, G2, Gsh2, A2, Ash2, B2,
+        C3, Csh3, D3, Dsh3, E3, F3, Fsh3, G3, Gsh3, A3, Ash3, B3,
+        C4, Csh4, D4, Dsh4, E4, F4, Fsh4, G4, Gsh4, A4, Ash4, B4,
+        C5, Csh5, D5, Dsh5, E5, F5, Fsh5, G5, Gsh5, A5, Ash5, B5,
+        C6
+    } note_enum;
+
+    typedef struct {
+        logic [15:0] duration;
+        note_enum note_pitch [0:2];
+        logic [1:0] data;
+    } music_note;
+
+    localparam music_note NULL_MUSIC_NOTE = '{16'b0, {SILENCE, SILENCE, SILENCE}, 2'b0};
+
 endpackage

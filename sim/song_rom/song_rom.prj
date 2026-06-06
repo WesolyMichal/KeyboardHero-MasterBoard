@@ -1,4 +1,4 @@
-sv work ../../rtl/game_pkg.sv \
-        ../../rtl/song_rom.sv \
-        ../../rtl/game_engine.sv \
+sv work ../../rtl/core/game_pkg.sv \
+        ../../rtl/core/song_rom.sv \
+        ../../rtl/core/game_engine.sv \
         song_rom_tb.sv

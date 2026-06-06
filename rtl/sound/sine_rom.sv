@@ -1,6 +1,6 @@
 module sine_rom(
     input logic [7:0] phase [0:2],
-    output logic signed [7:0] value [0:2]
+    output logic [7:0] value [0:2]
 );
 
 logic [7:0] sine [0:255] = {

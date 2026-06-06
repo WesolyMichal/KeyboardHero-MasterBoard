@@ -31,7 +31,7 @@ wire logic [7:0] note_addr;
 
 wire logic [5:0] buttons;
 wire logic strum;
-wire logic tick;
+wire logic tick_orig, tick_decoder;
 
 /*
  * Outputs
@@ -47,7 +47,7 @@ wire logic UART_send, game_UART_send, fsm_UART_send, UART_select;
 wire logic song_start, song_stop;
 wire logic [1:0] song_select;
 
-wire logic timer_enable, decoder_enable;
+wire logic timer_enable;
 
 wire logic tx_empty;
 
@@ -112,7 +112,7 @@ timer #(.FREQUENCY(1000)) u_timer_1kHz(
     .clk(clk40MHz),
     .rst_n,
     .enable(timer_enable),
-    .overflow(decoder_enable)
+    .tick(tick_orig)
 );
 
 input_synch u_input_synch(
@@ -127,19 +127,19 @@ input_synch u_input_synch(
 button_decoder u_button_decoder(
     .clk(clk40MHz),
     .rst_n,
-    .enable(decoder_enable),
+    .tick_in(tick_orig),
     .rx_data,
     .read_data(read_data_40MHz),
     .buttons,
     .strum,
     .controls,
-    .tick
+    .tick_out(tick_decoder)
 );
 
 game_engine u_game_engine(
     .clk(clk40MHz),
     .rst_n,
-    .tick,
+    .tick_in(tick_decoder),
     .song_start,
     .song_stop,
 

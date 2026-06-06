@@ -1,17 +1,19 @@
 import sound_pkg::*;
 
-module phase_accumulator #(
+module phase_acc_freq #(
     parameter logic [3:0] NOTES = 3
 )(
     input logic clk,
     input logic rst_n,
 
     input logic [15:0] wave_freq [0:NOTES-1],
+    input logic [31:0] wave_freq_acc [0:NOTES-1],
 
     input pmod_internal pmod_in,
     output pmod_internal pmod_out,
     
-    output logic [7:0] phase [0:NOTES-1]
+    output logic [7:0] phase [0:NOTES-1],
+    output logic [15:0] wave_freq_out [0:NOTES-1]
 );
 
 /*
@@ -28,7 +30,7 @@ always_comb begin
 
     for(logic [3:0]harmonic = 0; harmonic < NOTES; harmonic++) begin
 
-        phase_inc[harmonic] = wave_freq[harmonic] * 16'd380;
+        phase_inc[harmonic] = wave_freq_acc[harmonic][23:0];
 
     end
 
@@ -38,8 +40,10 @@ end
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
 
-        for(logic [3:0] harmonic = 0; harmonic < NOTES; harmonic++) 
+        for(logic [3:0] harmonic = 0; harmonic < NOTES; harmonic++) begin
             phase_acc[harmonic] <= '0;
+            wave_freq_out[harmonic] <= '0;
+        end
 
         pmod_out <= '0;
 
@@ -47,12 +51,13 @@ always_ff @(posedge clk or negedge rst_n) begin
 
         if(lrclk_posedge) 
 
-            for(logic [3:0]harmonic = 0; harmonic < NOTES; harmonic++) 
+            for(logic [3:0]harmonic = 0; harmonic < NOTES; harmonic++)
                 phase_acc[harmonic] <= phase_acc[harmonic] + phase_inc[harmonic];
 
         else phase_acc <= phase_acc;
 
         pmod_out <= pmod_in;
+        wave_freq_out <= wave_freq;
     end
 end
 

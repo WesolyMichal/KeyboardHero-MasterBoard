@@ -14,14 +14,14 @@ module button_decoder_tb;
 
     logic read_data_100MHz;
     logic [7:0] rx_data;
-    logic enable;
+    logic tick_in;
 
     wire [5:0] buttons;
     wire strum;
 
     wire navigation controls;
 
-    wire tick;
+    wire tick_out;
 
     initial begin
         clk40MHz = 1'b0;
@@ -34,11 +34,11 @@ module button_decoder_tb;
     end
 
     initial begin
-        enable = 1'b0;
+        tick_in = 1'b0;
         forever begin
-            @(posedge clk40MHz) enable = '0;
+            @(posedge clk40MHz) tick_in = '0;
             repeat(2) @(posedge clk40MHz);
-            @(posedge clk40MHz) enable = '1;
+            @(posedge clk40MHz) tick_in = '1;
         end
     end
 
@@ -149,14 +149,14 @@ module button_decoder_tb;
 
         .read_data(read_data_40MHz),
         .rx_data,
-        .enable,
+        .tick_in,
 
         .buttons,
         .strum,
 
         .controls,
 
-        .tick
+        .tick_out
     );
 
     input_synch u_input_synch(

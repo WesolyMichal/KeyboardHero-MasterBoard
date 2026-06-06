@@ -12,7 +12,7 @@ module game_engine_tb;
      */
     logic clk, rst_n;
 
-    logic tick;
+    logic tick_in;
     logic song_start, song_stop;
 
     logic [5:0] buttons;
@@ -41,12 +41,12 @@ module game_engine_tb;
         forever #(CLK_PERIOD/2) clk = ~clk;
     end
 
-    initial begin: tick_blk
-        tick = 1'b0;
+    initial begin: tick_in_blk
+        tick_in = 1'b0;
         forever begin
             repeat(9) @(negedge clk);
-            tick = 1'b1;
-            @(negedge clk) tick = 1'b0;
+            tick_in = 1'b1;
+            @(negedge clk) tick_in = 1'b0;
         end
     end
 
@@ -73,13 +73,13 @@ module game_engine_tb;
     endtask
 
     task end_song;
-        repeat(note.duration + note.waiting) @(negedge tick);
+        repeat(note.duration + note.waiting) @(negedge tick_in);
         note.data = 4'hf;
-        repeat(note.duration + note.waiting) @(negedge tick);
+        repeat(note.duration + note.waiting) @(negedge tick_in);
     endtask
 
     task interruption;
-        repeat(3 * (note.duration + note.waiting)) @(negedge tick);
+        repeat(3 * (note.duration + note.waiting)) @(negedge tick_in);
         song_stop = '1;
         @(negedge clk) song_stop = '0;
         repeat(20) @(negedge clk);
@@ -92,20 +92,20 @@ module game_engine_tb;
             default: buttons = note.buttons;
         endcase
         @(posedge note_addr);
-        repeat(note.duration) @(negedge tick);
+        repeat(note.duration) @(negedge tick_in);
         case(timing)
-            EARLY: repeat(note.waiting - (HIT_MARGIN + 2)) @(negedge tick);
-            LITTLE_EARLY: repeat(note.waiting - 2) @(negedge tick);
-            ON: repeat(note.waiting) @(negedge tick);
-            LITTLE_LATE: repeat(note.waiting + 2) @(negedge tick);
-            LATE: repeat(note.waiting + (HIT_MARGIN + 2)) @(negedge tick);
+            EARLY: repeat(note.waiting - (HIT_MARGIN + 2)) @(negedge tick_in);
+            LITTLE_EARLY: repeat(note.waiting - 2) @(negedge tick_in);
+            ON: repeat(note.waiting) @(negedge tick_in);
+            LITTLE_LATE: repeat(note.waiting + 2) @(negedge tick_in);
+            LATE: repeat(note.waiting + (HIT_MARGIN + 2)) @(negedge tick_in);
         endcase
-        @(negedge tick) strum = '1;
-        @(negedge tick) strum = '0;
+        @(negedge tick_in) strum = '1;
+        @(negedge tick_in) strum = '0;
         case(accuracy)
-            HOLD_FULL: repeat(note.duration - 1) @(negedge tick);
-            HOLD_PART: repeat(note.duration/2 - 1) @(negedge tick);
-            default: @(negedge tick);
+            HOLD_FULL: repeat(note.duration - 1) @(negedge tick_in);
+            HOLD_PART: repeat(note.duration/2 - 1) @(negedge tick_in);
+            default: @(negedge tick_in);
         endcase
         buttons = '0;
         strum = '0;
@@ -125,7 +125,7 @@ module game_engine_tb;
         .clk,
         .rst_n,
 
-        .tick,
+        .tick_in,
         .song_start,
         .song_stop,
 

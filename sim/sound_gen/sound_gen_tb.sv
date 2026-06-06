@@ -9,15 +9,17 @@ module sound_gen_tb;
 
     localparam logic [3:0] NOTES = 3;
 
-    logic enable, clk, rst_n;
+    logic enable, clk, rst_n, damped;
 
-    logic [15:0] wave_freq [0:NOTES-1];
+    note_enum notes [0:NOTES-1];
+    wire note_enum notes_acc [0:NOTES-1];
 
+    wire logic [23:0] phase_shift [0:NOTES-1];
     wire logic [7:0] phase [0:NOTES-1];
     
-    wire logic [7:0] value [0:NOTES-1];
+    wire logic [7:0] value_rom [0:NOTES-1], value_mix;
 
-    wire pmod_internal pmod_bclk, pmod_lrclk, pmod_acc;
+    wire pmod_internal pmod_bclk, pmod_lrclk, pmod_acc, pmod_mix;
 
     wire pmod_if pmod_amp3;
 
@@ -27,19 +29,23 @@ module sound_gen_tb;
     end
 
     initial begin
-        wave_freq[0] = 16'd1;
-        wave_freq[1] = 16'd2_000;
-        wave_freq[2] = 16'd3_000;
-        forever @(negedge pmod_lrclk.lrclk) wave_freq[0] *= 2;
+        notes[0] = G5;
+        notes[1] = E5;
+        notes[2] = C5;
+        #5ms;
+        notes[0] = G5;
+        notes[1] = E5;
+        notes[2] = C6;
     end
 
     initial begin
         enable = '0;
         rst_n = '0;
+        damped = '0;
         @(negedge clk) rst_n = '1;
         @(negedge clk) enable = '1;
 
-        #2ms;
+        #10ms;
 
         $finish;
     end
@@ -57,28 +63,46 @@ module sound_gen_tb;
         .pmod_in(pmod_bclk),
         .pmod_out(pmod_lrclk)
     );
+
+    phase_inc_rom u_pitch_rom(
+        .note_index(notes),
+        .phase_shift
+    );
     
-    phase_accumulator u_phase_accumulator(
+    phase_acc_note u_phase_acc_note(
         .clk,
         .rst_n,
         .pmod_in(pmod_lrclk),
         .pmod_out(pmod_acc),
+        .notes_in(notes),
+        .notes_out(notes_acc),
+        .phase_shift,
+        .phase
+    );
+
+    sine_rom u_sine_rom(
         .phase,
-        .wave_freq
+        .value(value_rom)
+    );
+
+    mixer u_mixer(
+        .clk,
+        .rst_n,
+        .pmod_in(pmod_acc),
+        .pmod_out(pmod_mix),
+        .value_in(value_rom),
+        .value_out(value_mix),
+        .notes_in(notes_acc),
+        .damped
     );
     
     sdata_gen u_sdata_gen(
         .clk,
         .rst_n,
-        .pmod_in(pmod_acc),
-        .l_data(value[0]),
-        .r_data(value[1]),
+        .pmod_in(pmod_mix),
+        .l_data(value_mix),
+        .r_data(value_mix),
         .pmod_out(pmod_amp3)
-    );
-    
-    sine_rom u_sine_rom(
-        .phase,
-        .value
     );
 
 endmodule

@@ -3,7 +3,7 @@ import game_pkg::*;
 module game_engine (
     input logic clk,
     input logic rst_n,
-    input logic tick,
+    input logic tick_in,
     input logic song_start,
     input logic song_stop,
 
@@ -70,7 +70,7 @@ always_comb begin
             current_note_nxt = coming_note;
         end
         WAIT: begin
-            if(tick) begin
+            if(tick_in) begin
                 timer_nxt = (timer >= current_note.waiting - 1) ? 0 : timer + 1;
 
                 if(timer >= current_note.waiting - 1) note_addr_nxt = note_addr + 1;
@@ -87,7 +87,7 @@ always_comb begin
             end
         end
         SUSTAIN: begin
-            if(tick) begin
+            if(tick_in) begin
                 if(timer >= current_note.duration - 1) begin
 
                     if(current_note.data == 4'hf) game_data_nxt.status = END_GAME;
@@ -129,10 +129,10 @@ always_comb begin
     case(state)
         IDLE: state_nxt = (song_start == '1) ? WAIT : IDLE;
 
-        WAIT: if(tick) state_nxt = (timer >= current_note.waiting - 1) ? SUSTAIN : WAIT;
+        WAIT: if(tick_in) state_nxt = (timer >= current_note.waiting - 1) ? SUSTAIN : WAIT;
 
         SUSTAIN: begin
-            if(tick) begin
+            if(tick_in) begin
                 if(timer >= current_note.duration - 1) state_nxt = (current_note.data == 4'hf) ? IDLE : WAIT;
                 else state_nxt = SUSTAIN;
             end

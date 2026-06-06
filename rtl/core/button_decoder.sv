@@ -6,20 +6,20 @@ module button_decoder(
 
     input logic read_data,
     input logic [7:0] rx_data,
-    input logic enable,
+    input logic tick_in,
 
     output logic [5:0] buttons,
     output logic strum,
 
     output navigation controls,
 
-    output logic tick
+    output logic tick_out
 );
 
 logic released, released_nxt;
 
 logic [5:0] buttons_nxt;
-logic strum_nxt, tick_nxt;
+logic strum_nxt, tick_out_nxt;
 
 logic [6:0] buffer, buffer_nxt;
 
@@ -31,7 +31,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         strum       <= '0;
         controls    <= '0;
         con_pressed <= '0;
-        tick        <= '0;
+        tick_out        <= '0;
         buffer      <= '0;
         released    <= '0;
     end else begin
@@ -39,7 +39,7 @@ always_ff @(posedge clk or negedge rst_n) begin
         strum       <= strum_nxt;
         controls    <= controls_nxt;
         con_pressed <= con_pressed_nxt;
-        tick        <= tick_nxt;
+        tick_out        <= tick_out_nxt;
         buffer      <= buffer_nxt;
         released    <= released_nxt;
     end
@@ -53,7 +53,7 @@ always_comb begin
 
     buttons_nxt = buttons;
     strum_nxt = strum;
-    tick_nxt = '0;
+    tick_out_nxt = '0;
 
     if(read_data) begin
         if(rx_data == RELEASED) released_nxt = '1;
@@ -121,9 +121,9 @@ always_comb begin
         end
     end
 
-    if(enable) begin
+    if(tick_in) begin
         {strum_nxt, buttons_nxt} = buffer;
-        tick_nxt = '1;
+        tick_out_nxt = '1;
         buffer_nxt[6] = '0;
     end
 end
