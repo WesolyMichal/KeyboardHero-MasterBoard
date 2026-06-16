@@ -12,18 +12,21 @@
  * Top level synthesizable module including the project top and all the FPGA-referred modules.
  */
 
- module top_master_basys3 (
+module top_master_basys3 (
     input  wire clk,
     input  wire btnC,
     inout  wire PS2Clk,
     inout  wire PS2Data,
     
     output wire [15:0] led,
-    output wire JA1
+    output wire JA1,
+    output wire JC[7:0]
 );
 
 timeunit 1ns;
 timeprecision 1ps;
+
+import sound_pkg::*;
 
 /**
  * Local variables and signals
@@ -33,6 +36,7 @@ wire clk100MHz;
 wire clk40MHz;
 wire locked;
 wire pclk_mirror;
+wire pmod_if pmod_amp3;
 
 (* KEEP = "TRUE" *)
 (* ASYNC_REG = "TRUE" *)
@@ -45,6 +49,12 @@ logic [7:0] safe_start = 0;
  * Signals assignments
  */
 
+assign JC[0] = pmod_amp3.lrclk;
+assign JC[1] = pmod_amp3.sdata;
+assign JC[3] = pmod_amp3.bclk;
+assign JC[7] = pmod_amp3.shutdown_n;
+
+assign {JC[2], JC[4], JC[5], JC[6]} = 4'b0;
 /**
  * FPGA submodules placement
  */
@@ -81,7 +91,8 @@ top_master u_top_master (
     .PS2_clk(PS2Clk),
     .PS2_data(PS2Data),
     .led,
-    .uart_tx(JA1)
+    .uart_tx(JA1),
+    .pmod_amp3
 );
 
 endmodule

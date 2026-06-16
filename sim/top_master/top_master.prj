@@ -6,6 +6,19 @@ sv work ../../rtl/core/game_pkg.sv \
         ../../rtl/core/timer.sv \
         ../../rtl/core/UART_mux.sv \
         ../../rtl/core/game_engine.sv \
+        ../../rtl/core/damped_comb.sv \
+        ../../rtl/sound/sound_pkg.sv \
+        ../../rtl/sound/bclk_gen.sv \
+        ../../rtl/sound/lrclk_gen.sv \
+        ../../rtl/sound/phase_inc_rom.sv \
+        ../../rtl/sound/phase_acc_note.sv \
+        ../../rtl/sound/mixer.sv \
+        ../../rtl/sound/sdata_gen.sv \
+        ../../rtl/sound/sine_rom.sv \
+        ../../rtl/sound/sound_fsm.sv \
+        ../../rtl/sound/record_rom.sv \
+        ../../rtl/sound/record_player.sv \
+        ../sound_top/sound_top_4test.sv \
         top_master_4test.sv \
         top_master_tb.sv
 

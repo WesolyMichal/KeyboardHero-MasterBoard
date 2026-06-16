@@ -1,0 +1,6 @@
+sv work ../../rtl/sound/sound_pkg.sv \
+        ../../rtl/sound/sound_fsm.sv \
+        ../../rtl/sound/record_player.sv \
+        ../../rtl/sound/record_rom.sv \
+        ../../rtl/core/timer.sv \
+        record_player_tb.sv

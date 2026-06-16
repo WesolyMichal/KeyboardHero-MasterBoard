@@ -1,4 +1,5 @@
 import game_pkg::*;
+import sound_pkg::*;
 
 module top_master_4test(
     input logic clk40MHz,
@@ -7,7 +8,9 @@ module top_master_4test(
     input logic read_data,
 
     output logic [15:0] led,
-    output logic uart_tx
+    output logic uart_tx,
+
+    output pmod_if pmod_amp3
 );
 
 wire navigation controls;
@@ -41,6 +44,8 @@ wire logic [1:0] song_select;
 wire logic timer_enable, tick_orig, tick_decoder;
 
 wire logic tx_empty;
+
+wire logic damped;
 
 assign led[7:0] = engine_out;
 
@@ -91,7 +96,7 @@ uart #(.DVSR(1))u_UART_tx(
     .tx_empty_out(tx_empty)
 );
 
-timer #(.FREQUENCY(160_000)) u_timer_1kHz(
+timer #(.FREQUENCY(4_000_000)) u_timer_1kHz(
     .clk(clk40MHz),
     .rst_n,
     .enable(timer_enable),
@@ -135,6 +140,23 @@ song_rom u_song_rom(
     .note,
     .note_addr,
     .song_select
+);
+
+damped_comb u_damped_comb(
+    .engine_out,
+    .damped
+);
+
+sound_top_4test #(
+    .FREQUENCY(4_000_000)
+) u_sound_top(
+    .clk(clk40MHz),
+    .rst_n,
+    .song_start,
+    .song_stop,
+    .song_select,
+    .damped,
+    .pmod_amp3
 );
 
 endmodule

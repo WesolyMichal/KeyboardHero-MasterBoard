@@ -31,6 +31,7 @@ end
 
 always_comb begin
     state_nxt = state;
+    counter_nxt = counter;
 
     case(state)
         IDLE: begin
@@ -42,7 +43,7 @@ always_comb begin
         LEFT: begin
             if(pmod_in.enable) begin
                 if((pmod_in.bclk) && (bclk_last == 0'b0)) begin
-                    if(counter == 0) begin
+                    if(counter == '0) begin
                         state_nxt = RIGHT;
                         counter_nxt = RESOLUTION_BITS - 1;
                     end else counter_nxt = counter - 1; 

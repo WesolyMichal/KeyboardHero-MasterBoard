@@ -22,15 +22,24 @@ logic [RESOLUTION_BITS-1:0] current_data, current_data_nxt;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
-        pmod_out <= '0;
+        pmod_out.bclk  <= '0;
+        pmod_out.lrclk <= '0;
+        pmod_out.sdata <= '0;
+        pmod_out.shutdown_n <= '0;
         bit_counter <= '0;
         current_data <= '0;
     end else begin
-        pmod_out <= pmod_out_nxt;
+        pmod_out.bclk  <= pmod_out_nxt.bclk;
+        pmod_out.lrclk <= pmod_out_nxt.lrclk;
+        pmod_out.sdata <= pmod_out_nxt.sdata;
+        pmod_out.shutdown_n <= '1;
+
         bit_counter <= bit_counter_nxt;
         current_data <= current_data_nxt;
     end
 end
+
+assign pmod_out.mclk_e = clk;
 
 always_comb begin
     pmod_out_nxt.bclk = pmod_in.bclk;
@@ -65,12 +74,10 @@ always_comb begin
             end
         end
     end else begin
-        current_data_nxt = '0;
+        current_data_nxt = 8'h80;
         pmod_out_nxt.sdata = '0;
         bit_counter_nxt = '0;
     end
 end
-
-assign pmod_out_nxt.shutdown_n = ~pmod_in.enable;
 
 endmodule

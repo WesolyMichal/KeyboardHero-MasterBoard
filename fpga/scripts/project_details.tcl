@@ -31,15 +31,28 @@ set xdc_files {
 
 # Specify SystemVerilog design files location   -- EDIT
 set sv_files {
-    ../rtl/master_fsm.sv
-    ../rtl/button_decoder.sv
-    ../rtl/input_synch.sv
-    ../rtl/game_pkg.sv
-    ../rtl/game_engine.sv
-    ../rtl/timer.sv
-    ../rtl/UART_mux.sv
-    ../rtl/song_rom.sv
-    ../rtl/top_master.sv
+    ../rtl/core/master_fsm.sv
+    ../rtl/core/button_decoder.sv
+    ../rtl/core/input_synch.sv
+    ../rtl/core/game_pkg.sv
+    ../rtl/core/game_engine.sv
+    ../rtl/core/timer.sv
+    ../rtl/core/UART_mux.sv
+    ../rtl/core/song_rom.sv
+    ../rtl/core/top_master.sv
+    ../rtl/core/damped_comb.sv
+    ../rtl/sound/sound_pkg.sv
+    ../rtl/sound/bclk_gen.sv
+    ../rtl/sound/lrclk_gen.sv
+    ../rtl/sound/phase_inc_rom.sv
+    ../rtl/sound/phase_acc_note.sv
+    ../rtl/sound/mixer.sv
+    ../rtl/sound/sdata_gen.sv
+    ../rtl/sound/sine_rom.sv
+    ../rtl/sound/sound_fsm.sv
+    ../rtl/sound/record_rom.sv
+    ../rtl/sound/record_player.sv
+    ../rtl/sound/sound_top.sv
     rtl/top_master_basys3.sv
 }
 
@@ -60,8 +73,12 @@ set vhdl_files {
 
 # Specify files for a memory initialization     -- EDIT
 set mem_files {
-    ../rtl/songs/song_0.data
-    ../rtl/songs/song_1.data
-    ../rtl/songs/song_2.data
-    ../rtl/songs/song_3.data
+    ../rtl/core/songs/song_0.data
+    ../rtl/core/songs/song_1.data
+    ../rtl/core/songs/song_2.data
+    ../rtl/core/songs/song_3.data
+    ../rtl/sound/music/track_0.data
+    ../rtl/sound/music/track_1.data
+    ../rtl/sound/music/track_2.data
+    ../rtl/sound/music/track_3.data
 }

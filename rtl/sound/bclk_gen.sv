@@ -27,6 +27,7 @@ end
 
 always_comb begin
     state_nxt = state;
+    counter_nxt = counter;
 
     case(state)
         IDLE: begin

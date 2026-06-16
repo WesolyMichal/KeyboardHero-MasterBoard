@@ -102,14 +102,15 @@ always_comb begin
                     
                     if(strum) begin
                         if(note_hit) game_data_nxt.status = MISS;
-                        else if((timer <= HIT_MARGIN) && ((buttons === current_note.buttons))) begin
+                        else if((timer <= HIT_MARGIN) && ((buttons == current_note.buttons))) begin
                             game_data_nxt.status = HIT;
                             note_hit_nxt = '1;
                         end else game_data_nxt.status = MISS;
                     end
 
                     if(game_data.status == HIT) begin
-                        if ((buttons & current_note.long) === current_note.long) game_data_nxt.status = HIT;
+                        if (((buttons & current_note.long) == current_note.long) 
+                        && (current_note.long != '0)) game_data_nxt.status = HIT;
                         else game_data_nxt.status = PLAYER_IDLE;
                     end
 

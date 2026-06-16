@@ -134,7 +134,7 @@ module song_rom_tb;
         .clk,
         .note,
         .note_addr,
-        .song_select(0)
+        .song_select(2'b1)
     );
 
 endmodule

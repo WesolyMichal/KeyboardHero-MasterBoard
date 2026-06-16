@@ -20,7 +20,9 @@ module top_master_tb;
      */
 
     wire uart_tx;
-    wire logic [7:0] led;
+    wire logic [15:0] led;
+
+    wire logic [4:0] pmod_amp3;
 
     /*
      * Clocks
@@ -61,32 +63,35 @@ module top_master_tb;
 
         send_and_release(ARR_RIGHT);
 
-        send_and_release(ARR_LEFT);
+        // send_and_release(ARR_LEFT);
+        // send_and_release(ARR_LEFT);
 
         send_and_release(ENTER);
 
-        repeat(15) begin
-            #1ms send_input(BUTTON_1);
-            #1ms send_input(BUTTON_2);
-            #1ms send_input(BUTTON_3);
-            #1ms send_input(BUTTON_4);
-            #1ms send_input(BUTTON_5);
+        // repeat(15) begin
+        //     #1ms send_input(BUTTON_1);
+        //     #1ms send_input(BUTTON_2);
+        //     #1ms send_input(BUTTON_3);
+        //     #1ms send_input(BUTTON_4);
+        //     #1ms send_input(BUTTON_5);
 
-            send_input(RELEASED);
-            send_input(BUTTON_1);
+        //     send_input(RELEASED);
+        //     send_input(BUTTON_1);
 
-            send_input(RELEASED);
-            send_input(BUTTON_2);
+        //     send_input(RELEASED);
+        //     send_input(BUTTON_2);
 
-            send_input(RELEASED);
-            send_input(BUTTON_3);
+        //     send_input(RELEASED);
+        //     send_input(BUTTON_3);
 
-            send_input(RELEASED);
-            send_input(BUTTON_4);
+        //     send_input(RELEASED);
+        //     send_input(BUTTON_4);
 
-            send_input(RELEASED);
-            send_input(BUTTON_5);
-        end
+        //     send_input(RELEASED);
+        //     send_input(BUTTON_5);
+        // end
+
+        #20ms;
 
         $finish;
     end
@@ -100,7 +105,8 @@ module top_master_tb;
         .read_data,
 
         .uart_tx,
-        .led
+        .led,
+        .pmod_amp3
     );
 
 endmodule

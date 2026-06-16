@@ -9,7 +9,7 @@ module sound_fsm(
     input logic [1:0] song_select_in,
 
     output logic enable,
-    output logic song_select_out
+    output logic [1:0] song_select_out
 );
 
 enum logic {IDLE, PLAYING} state, state_nxt;

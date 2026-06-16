@@ -1,6 +1,8 @@
 import sound_pkg::*;
 
-module sound_top(
+module sound_top_4test #(
+    parameter FREQUENCY = 200_000
+)(
     input logic clk,
     input logic rst_n,
 
@@ -43,7 +45,9 @@ sound_fsm u_sound_fsm(
     .song_select_out(fsm_song_select)
 );
 
-timer u_sound_timer(
+timer #(
+    .FREQUENCY(FREQUENCY)
+) u_sound_timer(
     .clk,
     .rst_n,
     .enable(fsm_enable),

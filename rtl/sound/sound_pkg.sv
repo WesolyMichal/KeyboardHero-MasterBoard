@@ -30,12 +30,14 @@ package sound_pkg;
         C6
     } note_enum;
 
-    typedef struct {
+    typedef struct packed {
         logic [15:0] duration;
-        note_enum note_pitch [0:2];
+        note_enum note_pitch_0;
+        note_enum note_pitch_1;
+        note_enum note_pitch_2;
         logic [1:0] data;
     } music_note;
 
-    localparam music_note NULL_MUSIC_NOTE = '{16'b0, {SILENCE, SILENCE, SILENCE}, 2'b0};
+    localparam music_note NULL_MUSIC_NOTE = {16'b0, SILENCE, SILENCE, SILENCE, 2'b0};
 
 endpackage

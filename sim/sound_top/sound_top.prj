@@ -1,0 +1,14 @@
+sv work ../../rtl/sound/sound_pkg.sv \
+        ../../rtl/sound/bclk_gen.sv \
+        ../../rtl/sound/lrclk_gen.sv \
+        ../../rtl/sound/phase_inc_rom.sv \
+        ../../rtl/sound/phase_acc_note.sv \
+        ../../rtl/sound/mixer.sv \
+        ../../rtl/sound/sdata_gen.sv \
+        ../../rtl/sound/sine_rom.sv \
+        ../../rtl/sound/sound_fsm.sv \
+        ../../rtl/core/timer.sv \
+        ../../rtl/sound/record_rom.sv \
+        ../../rtl/sound/record_player.sv \
+        sound_top_4test.sv \
+        sound_top_tb.sv

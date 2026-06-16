@@ -1,4 +1,5 @@
 import game_pkg::*;
+import sound_pkg::*;
 
 module top_master(
     input logic clk40MHz,
@@ -8,7 +9,9 @@ module top_master(
     input logic rst_n,
 
     output logic [15:0] led,
-    output logic uart_tx
+    output logic uart_tx,
+
+    output pmod_if pmod_amp3
 );
 
 /*
@@ -32,6 +35,8 @@ wire logic [7:0] note_addr;
 wire logic [5:0] buttons;
 wire logic strum;
 wire logic tick_orig, tick_decoder;
+
+wire logic damped;
 
 /*
  * Outputs
@@ -57,27 +62,6 @@ assign led[7:0] = engine_out;
  * Modules
  */
 
-master_fsm u_master_fsm(
-    .clk(clk40MHz),
-    .rst_n,
-
-    .engine(engine_out),
-
-    .controls,
-
-    .tx_empty,
-
-    .song_start,
-    .song_stop,
-    .song_select,
-
-    .timer_enable,
-
-    .UART_data(fsm_data),
-    .UART_send(fsm_UART_send),
-    .UART_select
-);
-
 Ps2Interface u_Ps2Interface(
     .clk(clk100MHz),
     .ps2_clk(PS2_clk),
@@ -85,34 +69,6 @@ Ps2Interface u_Ps2Interface(
     .rst(!rst_n),
     .rx_data,
     .read_data(read_data_100MHz)
-);
-
-UART_mux u_UART_mux(
-    .clk(clk40MHz),
-    .rst_n,
-    .UART_select,
-    .fsm_data,
-    .fsm_UART_send,
-    .game_data(engine_out),
-    .game_UART_send,
-    .UART_data,
-    .UART_send
-);
-
-uart #(.DVSR(130))u_UART_tx(
-    .clk(clk40MHz),
-    .reset(!rst_n),
-    .wr_uart(UART_send),
-    .w_data(UART_data),
-    .tx(uart_tx),
-    .tx_empty_out(tx_empty)
-);
-
-timer #(.FREQUENCY(1000)) u_timer_1kHz(
-    .clk(clk40MHz),
-    .rst_n,
-    .enable(timer_enable),
-    .tick(tick_orig)
 );
 
 input_synch u_input_synch(
@@ -136,6 +92,41 @@ button_decoder u_button_decoder(
     .tick_out(tick_decoder)
 );
 
+master_fsm u_master_fsm(
+    .clk(clk40MHz),
+    .rst_n,
+
+    .engine(engine_out),
+
+    .controls,
+
+    .tx_empty,
+
+    .song_start,
+    .song_stop,
+    .song_select,
+
+    .timer_enable,
+
+    .UART_data(fsm_data),
+    .UART_send(fsm_UART_send),
+    .UART_select
+);
+
+timer #(.FREQUENCY(1000)) u_timer_1kHz(
+    .clk(clk40MHz),
+    .rst_n,
+    .enable(timer_enable),
+    .tick(tick_orig)
+);
+
+song_rom u_song_rom(
+    .clk(clk40MHz),
+    .note,
+    .note_addr,
+    .song_select
+);
+
 game_engine u_game_engine(
     .clk(clk40MHz),
     .rst_n,
@@ -155,11 +146,40 @@ game_engine u_game_engine(
     .UART_send(game_UART_send)
 );
 
-song_rom u_song_rom(
+damped_comb u_damped_comb(
+    .engine_out,
+    .damped
+);
+
+sound_top u_sound_top(
     .clk(clk40MHz),
-    .note,
-    .note_addr,
-    .song_select
+    .rst_n,
+    .song_start,
+    .song_stop,
+    .song_select,
+    .damped,
+    .pmod_amp3
+);
+
+UART_mux u_UART_mux(
+    .clk(clk40MHz),
+    .rst_n,
+    .UART_select,
+    .fsm_data,
+    .fsm_UART_send,
+    .game_data(engine_out),
+    .game_UART_send,
+    .UART_data,
+    .UART_send
+);
+
+uart #(.DVSR(130))u_UART_tx(
+    .clk(clk40MHz),
+    .reset(!rst_n),
+    .wr_uart(UART_send),
+    .w_data(UART_data),
+    .tx(uart_tx),
+    .tx_empty_out(tx_empty)
 );
 
 endmodule
