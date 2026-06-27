@@ -19,7 +19,9 @@ package sound_pkg;
 
     localparam RESOLUTION_BITS = 8;
 
-    localparam BCLK_HALF_PERIOD = 28;
+    localparam LR_RESOLUTION_BITS = 32;
+
+    localparam BCLK_HALF_PERIOD = 7;
 
     typedef enum logic [5:0] {
         SILENCE,

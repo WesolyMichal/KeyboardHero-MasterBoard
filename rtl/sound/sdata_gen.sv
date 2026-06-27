@@ -16,9 +16,11 @@ pmod_if pmod_out_nxt;
 
 logic lrclk_edge, bclk_posedge;
 
+// ZMIANA: Zwiększony licznik, aby bezpiecznie obsługiwał wartości do 31
 logic [5:0] bit_counter, bit_counter_nxt;
 
-logic [RESOLUTION_BITS-1:0] current_data, current_data_nxt;
+// ZMIANA: Bufor przechowuje pełne 32-bitowe słowo wyjściowe I2S
+logic [31:0] current_data, current_data_nxt;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
@@ -56,25 +58,34 @@ always_comb begin
     if(pmod_in.enable) begin
         if(bclk_posedge) begin
             if(lrclk_edge) begin
+                // ZMIANA: Na zboczu LRCLK nie wystawiamy jeszcze bitu danych (I2S delay).
+                // Przygotowujemy całą ramkę 32-bitową: dane l/r lądują na najwyższych bitach, reszta to 0.
                 case(pmod_in.lrclk)
                     1'b0: begin
-                        current_data_nxt = l_data;
-                        pmod_out_nxt.sdata = l_data[RESOLUTION_BITS - 1];
-                        bit_counter_nxt = RESOLUTION_BITS - 1;
+                        current_data_nxt = {l_data, {(32-RESOLUTION_BITS){1'b0}}};
+                        pmod_out_nxt.sdata = pmod_out.sdata; // trzymaj poprzedni stan przez 1 takt BCLK
+                        bit_counter_nxt = 6'd31;             // ustawiamy licznik na początek 32-bitowego okna
                     end
                     1'b1: begin
-                        current_data_nxt = r_data;
-                        pmod_out_nxt.sdata = r_data[RESOLUTION_BITS - 1];
-                        bit_counter_nxt = RESOLUTION_BITS - 1;
+                        current_data_nxt = {r_data, {(32-RESOLUTION_BITS){1'b0}}};
+                        pmod_out_nxt.sdata = pmod_out.sdata; // trzymaj poprzedni stan przez 1 takt BCLK
+                        bit_counter_nxt = 6'd31;             // ustawiamy licznik na początek 32-bitowego okna
                     end
                 endcase
             end else begin
-                bit_counter_nxt = bit_counter - 1;
-                pmod_out_nxt.sdata = current_data[bit_counter - 1];
+                // ZMIANA: Wysyłamy bit o indeksie wskazywanym przez licznik i zmniejszamy go.
+                // Dzięki temu MSB poleci dokładnie 1 takt BCLK po zmianie LRCLK.
+                pmod_out_nxt.sdata = current_data[bit_counter];
+                
+                if (bit_counter > 0) begin
+                    bit_counter_nxt = bit_counter - 1;
+                end else begin
+                    bit_counter_nxt = '0; // zabezpieczenie przed przepełnieniem, gdyby okno miało > 32 bity
+                end
             end
         end
     end else begin
-        current_data_nxt = 8'h80;
+        current_data_nxt = '0;
         pmod_out_nxt.sdata = '0;
         bit_counter_nxt = '0;
     end

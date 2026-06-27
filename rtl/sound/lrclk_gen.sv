@@ -37,7 +37,7 @@ always_comb begin
         IDLE: begin
             if(pmod_in.enable) begin
                 state_nxt = LEFT;
-                counter_nxt = RESOLUTION_BITS - 1;
+                counter_nxt = LR_RESOLUTION_BITS - 1;
             end else counter_nxt = '0;
         end
         LEFT: begin
@@ -45,7 +45,7 @@ always_comb begin
                 if((pmod_in.bclk) && (bclk_last == 0'b0)) begin
                     if(counter == '0) begin
                         state_nxt = RIGHT;
-                        counter_nxt = RESOLUTION_BITS - 1;
+                        counter_nxt = LR_RESOLUTION_BITS - 1;
                     end else counter_nxt = counter - 1; 
                 end else counter_nxt = counter;
             end else state_nxt = IDLE;
@@ -55,7 +55,7 @@ always_comb begin
                 if((pmod_in.bclk) && (bclk_last == 0'b0)) begin
                     if(counter == 32'b0) begin
                         state_nxt = LEFT;
-                        counter_nxt = RESOLUTION_BITS - 1;
+                        counter_nxt = LR_RESOLUTION_BITS - 1;
                     end else counter_nxt = counter - 1; 
                 end else counter_nxt = counter;
             end else state_nxt = IDLE;
