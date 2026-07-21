@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Outputs signal phase based on its frequency.
+ */
+
 import sound_pkg::*;
 
 module phase_acc_freq #(

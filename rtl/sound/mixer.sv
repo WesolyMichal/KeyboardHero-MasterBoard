@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Mixes input signals into one.
+ */
+
 import sound_pkg::*;
 
 module mixer #(

@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Top module for sound playback.
+ */
+
 import sound_pkg::*;
 
 module sound_top(

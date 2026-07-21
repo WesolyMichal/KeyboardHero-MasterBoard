@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Generates LRCLK signal for I2S
+ */
+
 import sound_pkg::*;
 
 module lrclk_gen(

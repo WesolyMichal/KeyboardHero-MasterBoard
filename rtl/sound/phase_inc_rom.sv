@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Stores musical notes' phase increase based on lrclk.
+ */
+
 import sound_pkg::*;
 
 module phase_inc_rom #(

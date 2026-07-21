@@ -1,3 +1,15 @@
+
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Controls playback of songs
+ * Checks whether hit/sustain is successful
+ * Outputs hit status and buttons pressed
+ */
+
 import game_pkg::*;
 
 module game_engine (

@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Top module for master board.
+ */
+
 import game_pkg::*;
 import sound_pkg::*;
 
@@ -173,7 +182,7 @@ UART_mux u_UART_mux(
     .UART_send
 );
 
-uart #(.DVSR(130))u_UART_tx(
+uart #(.DVSR(22))u_UART_tx(
     .clk(clk40MHz),
     .reset(!rst_n),
     .wr_uart(UART_send),

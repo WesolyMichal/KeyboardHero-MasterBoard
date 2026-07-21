@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Stores 256 8-bit values of a sine wave.
+ */
+
 module sine_rom(
     input logic [7:0] phase [0:2],
     output logic [7:0] value [0:2]

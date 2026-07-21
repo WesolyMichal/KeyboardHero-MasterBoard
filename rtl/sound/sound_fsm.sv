@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Controls the playback of sound.
+ */
+
 module sound_fsm(
     input logic clk,
     input logic rst_n,

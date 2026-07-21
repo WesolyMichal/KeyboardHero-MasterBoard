@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Basic counter with variable frequency, enable register.
+ */
+
 module timer #(
     parameter FREQUENCY = 1000
 )(

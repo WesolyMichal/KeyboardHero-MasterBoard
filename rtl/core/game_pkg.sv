@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Constants and types used by master
+ */
+
 package game_pkg;
 
     typedef struct packed {
@@ -21,14 +30,6 @@ package game_pkg;
         logic [5:0] buttons;
         game_action status;
     } game_if;
-
-    //COLOURS
-    localparam logic [11:0] COLOUR_RED = 12'hf_0_0;
-    localparam logic [11:0] COLOUR_GREEN = 12'h0_f_0;
-    localparam logic [11:0] COLOUR_BLUE = 12'h0_0_f;
-    localparam logic [11:0] COLOUR_YELLOW = 12'hf_f_0;
-    localparam logic [11:0] COLOUR_MAGENTA = 12'hf_0_f;
-    localparam logic [11:0] COLOUR_CYAN = 12'h0_f_f;
 
     //HIT MARGINS
     localparam HIT_MARGIN = 50;

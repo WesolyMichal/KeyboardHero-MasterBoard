@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Stores music tracks' data files.
+ */
+
 import sound_pkg::*;
 
 module record_rom(

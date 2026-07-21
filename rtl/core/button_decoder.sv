@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Signal Decoder from PS2 Protocol
+ */
+
 import game_pkg::*;
 
 module button_decoder(

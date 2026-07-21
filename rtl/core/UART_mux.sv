@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Sends data from either master_fsm or game_engine based on game's state.
+ */
+
 module UART_mux(
     input logic clk,
     input logic rst_n,

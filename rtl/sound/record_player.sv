@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Outputs notes' signatures based on music track date files
+ */
+
 import sound_pkg::*;
 
 module record_player(

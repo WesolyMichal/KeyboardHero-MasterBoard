@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2025  AGH University of Science and Technology
+ * MTM UEC2
+ * Author: Michał Wesołowski
+ *
+ * Description:
+ * Synchronises 100MHz PS2 module output with 40MHz core
+ */
+
 module input_synch(
     input logic clk40MHz,
     input logic clk100MHz,
