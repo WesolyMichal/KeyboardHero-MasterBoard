@@ -17,6 +17,12 @@ module top_master(
     inout logic PS2_data,
     input logic rst_n,
 
+    input logic board_strum,
+    input logic board_esc,
+    input logic board_enter,
+    input logic board_next_song,
+    input logic [5:0] board_switches,
+
     output logic [15:0] led,
     output logic uart_tx,
 
@@ -98,7 +104,12 @@ button_decoder u_button_decoder(
     .buttons,
     .strum,
     .controls,
-    .tick_out(tick_decoder)
+    .tick_out(tick_decoder),
+    .board_enter,
+    .board_esc,
+    .board_next_song,
+    .board_strum,
+    .board_switches
 );
 
 master_fsm u_master_fsm(

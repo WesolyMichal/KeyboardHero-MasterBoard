@@ -22,7 +22,13 @@ module button_decoder(
 
     output navigation controls,
 
-    output logic tick_out
+    output logic tick_out,
+
+    input logic [5:0]board_switches,
+    input logic board_strum,
+    input logic board_esc,
+    input logic board_enter,
+    input logic board_next_song
 );
 
 logic released, released_nxt;
@@ -34,25 +40,63 @@ logic [6:0] buffer, buffer_nxt;
 
 navigation controls_nxt, con_pressed, con_pressed_nxt;
 
+logic board_strum_db;
+logic board_next_song_db;
+logic board_esc_db;
+logic board_enter_db;
+
+debounce u_debounce_esc(
+    .clk,
+    .reset(!rst_n),
+    .sw(board_esc),
+    .db_tick(board_esc_db)
+);
+
+debounce u_debounce_enter(
+    .clk,
+    .reset(!rst_n),
+    .sw(board_enter),
+    .db_tick(board_enter_db)
+);
+
+debounce u_debounce_strum(
+    .clk,
+    .reset(!rst_n),
+    .sw(board_strum),
+    .db_tick(board_strum_db)
+);
+
+debounce u_debounce_next_song(
+    .clk,
+    .reset(!rst_n),
+    .sw(board_next_song),
+    .db_tick(board_next_song_db)
+);
+
 always_ff @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         buttons     <= '0;
         strum       <= '0;
         controls    <= '0;
         con_pressed <= '0;
-        tick_out        <= '0;
+        tick_out    <= '0;
         buffer      <= '0;
         released    <= '0;
     end else begin
-        buttons     <= buttons_nxt;
-        strum       <= strum_nxt;
-        controls    <= controls_nxt;
+        buttons     <= buttons_nxt | board_switches;
+        strum       <= strum_nxt | board_strum_db;
+        controls.arr_left   <= controls_nxt.arr_left;
+        controls.arr_right  <= controls_nxt.arr_right | board_next_song_db;
+        controls.enter      <= controls_nxt.enter | board_enter_db;
+        controls.esc        <= controls_nxt.esc | board_esc_db;
         con_pressed <= con_pressed_nxt;
-        tick_out        <= tick_out_nxt;
+        tick_out    <= tick_out_nxt;
         buffer      <= buffer_nxt;
         released    <= released_nxt;
     end
 end
+
+
 
 always_comb begin
     buffer_nxt = buffer;

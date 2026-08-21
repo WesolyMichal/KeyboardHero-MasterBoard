@@ -10,8 +10,13 @@
 module top_master_basys3 (
     input  wire clk,
     input  wire btnC,
+    input  wire btnL,
+    input  wire btnR,
+    input  wire btnU,
+    input  wire btnD,
     inout  wire PS2Clk,
     inout  wire PS2Data,
+    input  wire [5:0]sw,
     
     output wire [15:0] led,
     output wire JA1,
@@ -87,7 +92,12 @@ top_master u_top_master (
     .PS2_data(PS2Data),
     .led,
     .uart_tx(JA1),
-    .pmod_amp3
+    .pmod_amp3,
+    .board_enter(btnR),
+    .board_esc(btnL),
+    .board_next_song(btnU),
+    .board_strum(btnD),
+    .board_switches(sw)
 );
 
 endmodule

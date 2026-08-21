@@ -60,6 +60,7 @@ set sv_files {
 set verilog_files {
     ../rtl/uart/uart.v
     ../rtl/uart/uart_rx.v
+    ../rtl/uart/debounce.v
     ../rtl/uart/uart_tx.v
     ../rtl/uart/fifo.v
     ../rtl/uart/mod_m_counter.v
