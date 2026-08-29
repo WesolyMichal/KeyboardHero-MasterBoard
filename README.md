@@ -1,54 +1,71 @@
-# Keyboard Hero: Master Board
+# Keyboard Hero (Płytka Master)
 
-Moduł Master Board pełni funkcję jednostki sterującej w projekcie Keyboard Hero. Odpowiada za obsługę interfejsu klawiatury PS/2, realizację logiki silnika gry, generowanie sygnałów audio oraz komunikację z płytką Slave za pośrednictwem magistrali UART.
+*Raport z projektu, v.1.0.1 (Data: 29.08.2026)*
 
-## Spis treści
-1. [Opis projektu](#opis-projektu)
-2. [Architektura](#architektura)
-3. [Specyfikacja komponentów](#specyfikacja-komponentów)
-4. [Konfiguracja sprzętowa](#konfiguracja-sprzętowa)
-5. [Rozprowadzenie zegara](#rozprowadzenie-zegara)
-
-## Opis projektu
-Projekt realizuje system gry zręcznościowej typu Guitar Hero w oparciu o układ FPGA. Płytka Master przetwarza sygnały wejściowe z klawiatury PS/2, weryfikuje trafienia w nuty zgodnie z logiką silnika gry oraz steruje odtwarzaniem melodii poprzez moduł audio PMOD AMP3. Stan rozgrywki jest przesyłany do płytki Slave w celu wizualizacji na monitorze VGA.
-
-## Architektura
-System opiera się na modułowej strukturze typu `top_master`. Główne bloki logiczne obejmują:
-
-* **Button Decoder**: Synchronizacja i dekodowanie sygnałów z klawiatury PS/2.
-* **Game Engine**: Logika obliczeniowa rozgrywki i weryfikacja poprawności trafień.
-* **Song ROM**: Pamięć nieulotna przechowująca dane o sekwencjach nut.
-* **Master FSM**: Maszyna stanów zarządzająca cyklem życia gry.
-* **UART Mux**: Multipleksacja danych wysyłanych do modułu Slave.
-
-## Specyfikacja komponentów
-
-| Moduł | Funkcja |
-| :--- | :--- |
-| `Ps2Interface` | Obsługa fizycznego interfejsu klawiatury PS/2 |
-| `Game Engine` | Przetwarzanie logiki gry i weryfikacja wkładu użytkownika |
-| `Sound Top` | Obsługa interfejsu audio PMOD AMP3 |
-| `Master FSM` | Sterowanie stanami systemu (start, pauza, koniec utworu) |
-
-## Konfiguracja sprzętowa
-
-Aby uruchomić system w trybie multiplayer, należy wykonać następujące połączenia:
-
-### 1. Połączenia między płytkami (Master - Slave)
-Płytki Basys3 muszą być połączone za pomocą dwóch przewodów typu jumper:
-* **Masa (GND)**: Połącz pin GND na płytce Master z pinem GND na płytce Slave.
-* **Linia danych (UART)**: Połącz pin JA1 na płytce Master z pinem JA1 na płytce Slave (połączenie sygnału transmisji szeregowej).
-
-### 2. Urządzenia peryferyjne
-* **Klawiatura**: Podłącz klawiaturę PS/2 (lub USB z obsługą protokołu PS/2) do portu USB-A płytki **Master**.
-* **Audio**: Wzmacniacz PMOD AMP3 należy wpiąć w złącze JC płytki **Master**.
-* **Wyświetlacz**: Monitor VGA musi zostać podłączony do portu VGA płytki **Slave**.
-
-## Rozprowadzenie zegara
-System wykorzystuje dwie domeny zegarowe generowane przez moduł `clk_wiz` (bazujące na sygnale wejściowym 100 MHz):
-1. **100 MHz**: Zasilanie interfejsu PS/2 oraz bloku synchronizacji.
-2. **40 MHz**: Obsługa logiki silnika gry, dekodera przycisków oraz modułów audio.
+**Autorzy:** Jakub Suder (JS), Michał Wesołowski (MW)  
+**Kurs / Przedmiot:** MTM UEC2  
 
 ---
-Autorzy: Jakub Suder (JS), Michał Wesołowski (MW)
-Data ostatniej modyfikacji: 13.08.2026
+
+## 📋 Spis treści
+1. [Repozytoria Git](#1-repozytoria-git)
+2. [Wstęp](#2-wstęp)
+3. [Jak grać (Instrukcja)](#3-jak-grać-instrukcja)
+4. [Architektura (Master)](#4-architektura-master)
+5. [Implementacja i Zasoby (Master)](#5-implementacja-i-zasoby-master)
+6. [Konfiguracja sprzętu](#6-konfiguracja-sprzętu)
+
+---
+
+## 1. Repozytoria Git
+* [KeyboardHero-MasterBoard](https://github.com/WesolyMichal/KeyboardHero-MasterBoard)
+* [KeyboardHero-SlaveBoard](https://github.com/WesolyMichal/KeyboardHero-SlaveBoard)
+
+---
+
+## 2. Wstęp
+Projekt inspirowany jest popularnymi grami rytmicznymi typu *Guitar Hero*, w których zadaniem gracza jest naciskanie odpowiednich klawiszy w rytm odtwarzanej muzyki. 
+
+Implementacja została zrealizowana na **dwóch płytkach Basys3**, przy czym płytka **Master** odpowiada za obsługę klawiatury (PS/2), logikę gry oraz odtwarzanie melodii.
+
+---
+
+## 3. Jak grać (Instrukcja)
+
+* **Jak grać w Keyboard Hero?**
+* **Sterowanie nutami:** Aby zagrać nutę, naciśnij `SPACJĘ` (szarpnięcie struną) razem z jednym z przycisków od `1` do `6`.
+* **Dopasowanie kolorów:** Przyciski `1-6` odpowiadają kolorom nut na ekranie.
+* **Długie nuty:** Przytrzymaj odpowiedni przycisk dla długich nut aż do ich zakończenia.
+* **Szarpnięcie / Strum:** Użyj strzałek `<` lub `>` w tym samym czasie, co przycisk nuty.
+* **Nawigacja:** Do poruszania się między etapami gry używaj przycisku `ENTER` oraz `ESC`.
+
+---
+
+## 4. Architektura (Master)
+* **Osoba odpowiedzialna:** Michał Wesołowski (MW)
+* **Główne zadania:** Obsługa interfejsu klawiatury PS/2, silnik gry, generowanie dźwięku oraz wysyłanie danych przez UART do płytki Slave.
+* **Rozprowadzenie zegara:** Generacja sygnału `clk40MHz` z wejściowego `clk100MHz` za pomocą modułu `clk_wiz`.
+
+---
+
+## 5. Implementacja i Zasoby (Master)
+
+### 5.1. Wykorzystanie zasobów (`top_master_basys3`)
+* **Slice LUTs:** 991
+* **Slice Registers:** 665
+* **F7 Muxes:** 47
+* **F8 Muxes:** 15
+* **Slice:** 330
+
+### 5.2. Marginesy czasowe
+* **WNS (Worst Negative Slack):** 1.234 ns
+* **WHS (Worst Hold Slack):** 0.099 ns
+
+---
+
+## 6. Konfiguracja sprzętu
+1. **Połączenie płytek:** Dwie zworek łączących obie płytki:
+   * Masa (GND) z masą (GND).
+   * Pin `JA1` z pinem `JA1`.
+2. **Klawiatura:** Podłączona do portu USB-A płytki **MASTER**.
+3. **Audio:** Wzmacniacz PMOD-AMP3 wpięty do złącza **JC** płytki **MASTER**.
