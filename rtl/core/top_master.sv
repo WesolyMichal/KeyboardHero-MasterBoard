@@ -181,6 +181,8 @@ sound_top u_sound_top(
     .pmod_amp3
 );
 
+
+
 UART_mux u_UART_mux(
     .clk(clk40MHz),
     .rst_n,
